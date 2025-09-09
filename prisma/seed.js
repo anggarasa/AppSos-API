@@ -20,43 +20,40 @@ async function main() {
   await prisma.user.deleteMany();
   const passwordHash = await bcrypt_1.default.hash("password123", 10);
   // Create 10 users
-  const users = [];
-  for (let i = 0; i < 10; i++) {
-    const name = faker.person.fullName();
-    const username = faker.internet.userName().toLowerCase() + i;
-    const email = faker.internet
-      .email({ firstName: name.split(" ")[0] })
-      .toLowerCase();
-
-    const user = await prisma.user.create({
-      data: {
-        email,
-        username,
-        name,
-        bio: faker.lorem.sentence(),
-        avatarUrl: faker.image.avatarGitHub(),
-        passwordHash,
-      },
-    });
-    users.push(user);
-  }
-
+  const users = await Promise.all(
+    Array.from({ length: 10 }).map(async (_, i) => {
+      const name = faker_1.faker.person.fullName();
+      const username = faker_1.faker.internet.userName().toLowerCase() + i;
+      const email = faker_1.faker.internet
+        .email({ firstName: name.split(" ")[0] })
+        .toLowerCase();
+      return prisma.user.create({
+        data: {
+          email,
+          username,
+          name,
+          bio: faker_1.faker.lorem.sentence(),
+          avatarUrl: faker_1.faker.image.avatarGitHub(),
+          passwordHash,
+        },
+      });
+    })
+  );
   // Create ~150 posts distributed across users
-  const posts = [];
-  for (let i = 0; i < 150; i++) {
-    const author = faker.helpers.arrayElement(users);
-    const post = await prisma.post.create({
-      data: {
-        authorId: author.id,
-        content: faker.lorem.paragraph({ min: 1, max: 3 }),
-        imageUrl: faker.datatype.boolean()
-          ? faker.image.urlPicsumPhotos({ width: 800, height: 800 })
-          : null,
-      },
-    });
-    posts.push(post);
-  }
-
+  const posts = await Promise.all(
+    Array.from({ length: 150 }).map(async () => {
+      const author = faker_1.faker.helpers.arrayElement(users);
+      return prisma.post.create({
+        data: {
+          authorId: author.id,
+          content: faker_1.faker.lorem.paragraph({ min: 1, max: 3 }),
+          imageUrl: faker_1.faker.datatype.boolean()
+            ? faker_1.faker.image.urlPicsumPhotos({ width: 800, height: 800 })
+            : null,
+        },
+      });
+    })
+  );
   // Follows: each user follows 2-5 other users
   for (const u of users) {
     const count = faker_1.faker.number.int({ min: 2, max: 5 });
