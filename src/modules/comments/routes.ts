@@ -2,6 +2,7 @@ import { Router } from "express";
 import { z } from "zod";
 import { prisma } from "../../lib/prisma";
 import { requireAuth, AuthPayload } from "../auth/middleware";
+import { ResponseHelper, parsePagination } from "../../lib/response";
 
 const router = Router();
 
@@ -11,7 +12,7 @@ router.post("/:postId", requireAuth, async (req, res) => {
   const { userId } = (req as any).auth as AuthPayload;
   const parsed = createSchema.safeParse(req.body);
   if (!parsed.success)
-    return res.status(400).json({ error: parsed.error.flatten() });
+    return ResponseHelper.validationError(res, parsed.error.flatten());
   const { postId } = req.params as { postId: string };
   const comment = await prisma.comment.create({
     data: { postId, authorId: userId, content: parsed.data.content },
@@ -30,27 +31,45 @@ router.post("/:postId", requireAuth, async (req, res) => {
       },
     });
   }
-  res.status(201).json(comment);
+  ResponseHelper.success(res, comment, "Comment created successfully", 201);
 });
 
 router.get("/:postId", async (req, res) => {
   const { postId } = req.params as { postId: string };
-  const comments = await prisma.comment.findMany({
-    where: { postId },
-    orderBy: { createdAt: "asc" },
-  });
-  res.json(comments);
+  const { page, limit, skip } = parsePagination(req.query);
+
+  const [comments, total] = await Promise.all([
+    prisma.comment.findMany({
+      where: { postId },
+      orderBy: { createdAt: "asc" },
+      skip,
+      take: limit,
+    }),
+    prisma.comment.count({
+      where: { postId },
+    }),
+  ]);
+
+  ResponseHelper.successWithPagination(
+    res,
+    comments,
+    { page, limit, total },
+    "Comments retrieved successfully"
+  );
 });
 
 router.delete("/:commentId", requireAuth, async (req, res) => {
   const { userId } = (req as any).auth as AuthPayload;
   const { commentId } = req.params as { commentId: string };
   const comment = await prisma.comment.findUnique({ where: { id: commentId } });
-  if (!comment) return res.status(404).json({ error: "Not found" });
+  if (!comment) return ResponseHelper.notFound(res, "Comment not found");
   if (comment.authorId !== userId)
-    return res.status(403).json({ error: "Forbidden" });
+    return ResponseHelper.forbidden(
+      res,
+      "You can only delete your own comments"
+    );
   await prisma.comment.delete({ where: { id: comment.id } });
-  res.json({ ok: true });
+  ResponseHelper.success(res, null, "Comment deleted successfully");
 });
 
 export default router;

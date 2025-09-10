@@ -2,6 +2,7 @@ import { Router } from "express";
 import { z } from "zod";
 import { prisma } from "../../lib/prisma";
 import { requireAuth, AuthPayload } from "../auth/middleware";
+import { ResponseHelper, parsePagination } from "../../lib/response";
 
 const router = Router();
 
@@ -14,7 +15,7 @@ router.post("/", requireAuth, async (req, res) => {
   const { userId } = (req as any).auth as AuthPayload;
   const parsed = createSchema.safeParse(req.body);
   if (!parsed.success)
-    return res.status(400).json({ error: parsed.error.flatten() });
+    return ResponseHelper.validationError(res, parsed.error.flatten());
   const post = await prisma.post.create({
     data: {
       authorId: userId,
@@ -22,25 +23,41 @@ router.post("/", requireAuth, async (req, res) => {
       imageUrl: parsed.data.imageUrl ?? null,
     },
   });
-  res.status(201).json(post);
+  ResponseHelper.success(res, post, "Post created successfully", 201);
 });
 
 router.get("/feed", requireAuth, async (req, res) => {
   const { userId } = (req as any).auth as AuthPayload;
+  const { page, limit, skip } = parsePagination(req.query);
+
   // Simple feed: posts from followed users + self
   const following = await prisma.follow.findMany({
     where: { followerId: userId },
     select: { followingId: true },
   });
   const ids = [userId, ...following.map((f) => f.followingId)];
-  const posts = await prisma.post.findMany({
-    where: { authorId: { in: ids } },
-    orderBy: { createdAt: "desc" },
-    include: {
-      _count: { select: { likes: true, comments: true, saves: true } },
-    },
-  });
-  res.json(posts);
+
+  const [posts, total] = await Promise.all([
+    prisma.post.findMany({
+      where: { authorId: { in: ids } },
+      orderBy: { createdAt: "desc" },
+      include: {
+        _count: { select: { likes: true, comments: true, saves: true } },
+      },
+      skip,
+      take: limit,
+    }),
+    prisma.post.count({
+      where: { authorId: { in: ids } },
+    }),
+  ]);
+
+  ResponseHelper.successWithPagination(
+    res,
+    posts,
+    { page, limit, total },
+    "Feed retrieved successfully"
+  );
 });
 
 router.get("/:postId", async (req, res) => {
@@ -52,19 +69,19 @@ router.get("/:postId", async (req, res) => {
       _count: { select: { likes: true, comments: true, saves: true } },
     },
   });
-  if (!post) return res.status(404).json({ error: "Not found" });
-  res.json(post);
+  if (!post) return ResponseHelper.notFound(res, "Post not found");
+  ResponseHelper.success(res, post, "Post retrieved successfully");
 });
 
 router.delete("/:postId", requireAuth, async (req, res) => {
   const { userId } = (req as any).auth as AuthPayload;
   const { postId } = req.params as { postId: string };
   const post = await prisma.post.findUnique({ where: { id: postId } });
-  if (!post) return res.status(404).json({ error: "Not found" });
+  if (!post) return ResponseHelper.notFound(res, "Post not found");
   if (post.authorId !== userId)
-    return res.status(403).json({ error: "Forbidden" });
+    return ResponseHelper.forbidden(res, "You can only delete your own posts");
   await prisma.post.delete({ where: { id: post.id } });
-  res.json({ ok: true });
+  ResponseHelper.success(res, null, "Post deleted successfully");
 });
 
 export default router;

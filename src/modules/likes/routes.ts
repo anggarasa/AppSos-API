@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { prisma } from "../../lib/prisma";
 import { requireAuth, AuthPayload } from "../auth/middleware";
+import { ResponseHelper } from "../../lib/response";
 
 const router = Router();
 
@@ -23,9 +24,9 @@ router.post("/:postId", requireAuth, async (req, res) => {
         },
       });
     }
-    res.status(201).json({ ok: true });
+    ResponseHelper.success(res, null, "Post liked successfully", 201);
   } catch {
-    res.status(409).json({ error: "Already liked" });
+    ResponseHelper.conflict(res, "Post already liked");
   }
 });
 
@@ -33,7 +34,7 @@ router.delete("/:postId", requireAuth, async (req, res) => {
   const { userId } = (req as any).auth as AuthPayload;
   const { postId } = req.params as { postId: string };
   await prisma.like.deleteMany({ where: { postId, userId } });
-  res.json({ ok: true });
+  ResponseHelper.success(res, null, "Post unliked successfully");
 });
 
 export default router;
