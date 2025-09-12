@@ -1,7 +1,6 @@
 import prisma from "../config/db";
 import bcrypt from "bcryptjs";
-import jwt from 'jsonwebtoken';
-import { userInfo } from "os";
+import jwt from 'jsonwebtoken'; ``
 
 // find all users
 export const findAllUsers = () => prisma.user.findMany();
@@ -64,7 +63,7 @@ export const insertUser = async (
 
 // update user by username
 export const updateUserById = (
-  id: number,
+  id: string,
   data: {
     name?: string,
     email?: string,
@@ -75,4 +74,4 @@ export const updateUserById = (
 ) => prisma.user.update({ where: { id }, data });
 
 // delete user
-export const deleteUserById = (id: number) => prisma.user.delete({ where: { id } });
+export const deleteUserById = (id: string) => prisma.user.delete({ where: { id } });

@@ -5,6 +5,7 @@ import cors from 'cors';
 import morgan from 'morgan';
 import { errorHandler } from './middleware/errorHandler';
 import { notFound } from './middleware/notFound';
+import userRouter from './routes/user.router'
 
 // load environment variables from .env file
 dotenv.config();
@@ -41,6 +42,8 @@ app.get('/health', (req, res) => {
 app.get('/api/v1', (req, res) => {
   res.json({ message: "API v1 is working" });
 });
+
+app.use('/api/v1/users', userRouter);
 
 // error handling middleware
 app.use(errorHandler);
