@@ -1,4 +1,5 @@
-import { PrismaClient } from "@prisma/client";
+// import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from "../generated/prisma";
 import app from "./app";
 
 const PORT = process.env.PORT || 3000;
