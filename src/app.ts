@@ -7,6 +7,7 @@ import { errorHandler } from './middleware/errorHandler';
 import { notFound } from './middleware/notFound';
 import userRouter from './routes/user.route';
 import authRouter from './routes/auth.route';
+import postRouter from './routes/post.route';
 
 // load environment variables from .env file
 dotenv.config();
@@ -46,6 +47,7 @@ app.get('/api/v1', (req, res) => {
 
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/users', userRouter);
+app.use('/api/v1/posts', postRouter);
 
 // error handling middleware
 app.use(errorHandler);

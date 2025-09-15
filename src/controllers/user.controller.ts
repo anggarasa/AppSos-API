@@ -6,7 +6,7 @@ export const getUsers = async (_: Request, res: Response) => {
   try {
     const users = await findAllUsers();
     return res.status(200).json({
-      status: 201,
+      status: 200,
       message: "Success",
       data: users,
     });
