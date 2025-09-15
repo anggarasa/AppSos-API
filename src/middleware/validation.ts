@@ -48,10 +48,11 @@ export const validateCreateUser = (req: Request, res: Response, next: NextFuncti
 // Validation middleware for user update
 export const validateUpdateUser = (req: Request, res: Response, next: NextFunction): void => {
   const { name, username, email, bio, avatarUrl } = req.body;
+  const hasAvatarFile = Boolean((req as any).file);
 
-  if (!name && !username && !email && !bio && !avatarUrl) {
+  if (!name && !username && !email && !bio && !avatarUrl && !hasAvatarFile) {
     res.status(400).json({
-      message: "At least one field must be provided for update"
+      message: "At least one field (or avatar file) must be provided for update"
     });
     return;
   }
