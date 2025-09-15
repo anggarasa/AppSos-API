@@ -1,6 +1,4 @@
 import prisma from "../config/db";
-import bcrypt from "bcryptjs";
-import jwt from 'jsonwebtoken'; ``
 
 // find all users
 export const findAllUsers = () => prisma.user.findMany({
@@ -31,58 +29,6 @@ export const findUserById = (id: string) => prisma.user.findUnique({
   }
 });
 
-// create new user
-export const insertUser = async (
-  data: {
-    name: string,
-    username: string,
-    email: string,
-    password: string,
-  }
-) => {
-  try {
-    const existingUsername = await prisma.user.findUnique({ where: { username: data.username } })
-    const existingEmail = await prisma.user.findUnique({ where: { email: data.email } })
-
-    if (existingEmail || existingUsername) {
-      throw new Error('Username or Email already exists');
-    }
-
-    const passwordHash = await bcrypt.hash(data.password, 10);
-
-    const newUser = await prisma.user.create({
-      data: {
-        name: data.name,
-        email: data.email,
-        username: data.username,
-        password: passwordHash,
-      }
-    });
-
-    // generate token
-    const token = jwt.sign(
-      {
-        userId: newUser.id,
-        username: newUser.username,
-      },
-      process.env.JWT_SECRET || 'your_jwt_secret',
-      { expiresIn: '24h' }
-    );
-
-    return {
-      token,
-      user: {
-        id: newUser.id,
-        name: newUser.name,
-        username: newUser.username,
-        email: newUser.email,
-      },
-    }
-
-  } catch (error) {
-    throw error;
-  }
-}
 
 // update user by id
 export const updateUserById = async (

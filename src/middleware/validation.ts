@@ -105,3 +105,26 @@ export const validateUpdateUser = (req: Request, res: Response, next: NextFuncti
 
   next();
 };
+
+// Validation middleware for login
+export const validateLogin = (req: Request, res: Response, next: NextFunction): void => {
+  const { username, password } = req.body;
+
+  if (!username || !password) {
+    res.status(400).json({
+      status:400,
+      message: "Username and password are required"
+    });
+    return;
+  }
+
+  if (password.length < 6) {
+    res.status(400).json({
+      status: 400,
+      message: "Password must be at least 6 characters long"
+    });
+    return;
+  }
+
+  next();
+};

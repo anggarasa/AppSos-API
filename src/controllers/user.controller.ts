@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { deleteUserById, findAllUsers, findUserById, insertUser, updateUserById } from "../services/user.service";
+import { deleteUserById, findAllUsers, findUserById, updateUserById } from "../services/user.service";
 
 // get users
 export const getUsers = async (_: Request, res: Response) => {
@@ -43,36 +43,6 @@ export const findUser = async (req: Request, res: Response) => {
   }
 }
 
-// create user
-export const createUser = async (req: Request, res: Response) => {
-  const {
-    name,
-    username,
-    email,
-    password
-  } = req.body;
-
-  try {
-    const result = await insertUser({ name, username, email, password });
-    return res.status(201).json({
-      status: 201,
-      message: "User registration successful",
-      data: result,
-    });
-  } catch (error: any) {
-    if (error.message === 'Username or Email already exists') {
-      return res.status(409).json({ 
-        status: 409,
-        message: error.message
-      });
-    } else {
-      return res.status(500).json({
-        status: 500,
-        message: "Internal server error",
-      });
-    }
-  }
-}
 
 // update user
 export const updateUser = async (req: Request, res: Response) => {
