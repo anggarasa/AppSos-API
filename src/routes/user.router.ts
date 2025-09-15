@@ -1,5 +1,12 @@
 import { Router } from "express";
-import { getUsers } from "../controllers/user.controller";
+import { 
+  getUsers, 
+  findUser, 
+  createUser, 
+  updateUser, 
+  deleteUser 
+} from "../controllers/user.controller";
+import { validateCreateUser, validateUpdateUser } from "../middleware/validation";
 
 const router: Router = Router();
 
@@ -7,15 +14,15 @@ const router: Router = Router();
 router.get('/', getUsers);
 
 // get user by username
-router.get('/:username', getUsers);
+router.get('/:id', findUser);
 
 // create user
-router.post('/', getUsers);
+router.post('/', validateCreateUser, createUser);
 
 // update user
-router.put('/:id', getUsers);
+router.put('/:id', validateUpdateUser, updateUser);
 
 // delete user
-router.delete('/:id', getUsers);
+router.delete('/:id', deleteUser);
 
 export default router;

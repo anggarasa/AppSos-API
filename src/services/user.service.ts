@@ -3,10 +3,33 @@ import bcrypt from "bcryptjs";
 import jwt from 'jsonwebtoken'; ``
 
 // find all users
-export const findAllUsers = () => prisma.user.findMany();
+export const findAllUsers = () => prisma.user.findMany({
+  select: {
+    id: true,
+    name: true,
+    username: true,
+    email: true,
+    bio: true,
+    avatarUrl: true,
+    createdAt: true,
+    updatedAt: true
+  }
+});
 
 // find user by username
-export const findUserByUsername = (username: string) => prisma.user.findUnique({ where: { username } });
+export const findUserById = (id: string) => prisma.user.findUnique({ 
+  where: { id },
+  select: {
+    id: true,
+    name: true,
+    username: true,
+    email: true,
+    bio: true,
+    avatarUrl: true,
+    createdAt: true,
+    updatedAt: true
+  }
+});
 
 // create new user
 export const insertUser = async (
@@ -47,13 +70,13 @@ export const insertUser = async (
     );
 
     return {
+      token,
       user: {
         id: newUser.id,
         name: newUser.name,
         username: newUser.username,
         email: newUser.email,
       },
-      token
     }
 
   } catch (error) {
@@ -61,8 +84,8 @@ export const insertUser = async (
   }
 }
 
-// update user by username
-export const updateUserById = (
+// update user by id
+export const updateUserById = async (
   id: string,
   data: {
     name?: string,
@@ -71,7 +94,70 @@ export const updateUserById = (
     bio?: string,
     avatarUrl?: string,
   }
-) => prisma.user.update({ where: { id }, data });
+) => {
+  try {
+    // Check if user exists
+    const existingUser = await prisma.user.findUnique({ where: { id } });
+    if (!existingUser) {
+      throw new Error('User not found');
+    }
+
+    // Check for duplicate username if username is being updated
+    if (data.username && data.username !== existingUser.username) {
+      const existingUsername = await prisma.user.findUnique({ 
+        where: { username: data.username } 
+      });
+      if (existingUsername) {
+        throw new Error('Username already exists');
+      }
+    }
+
+    // Check for duplicate email if email is being updated
+    if (data.email && data.email !== existingUser.email) {
+      const existingEmail = await prisma.user.findUnique({ 
+        where: { email: data.email } 
+      });
+      if (existingEmail) {
+        throw new Error('Email already exists');
+      }
+    }
+
+    const updatedUser = await prisma.user.update({ 
+      where: { id }, 
+      data,
+      select: {
+        id: true,
+        name: true,
+        username: true,
+        email: true,
+        bio: true,
+        avatarUrl: true,
+        createdAt: true,
+        updatedAt: true
+      }
+    });
+
+    return updatedUser;
+  } catch (error) {
+    throw error;
+  }
+};
 
 // delete user
-export const deleteUserById = (id: string) => prisma.user.delete({ where: { id } });
+export const deleteUserById = async (id: string) => {
+  try {
+    // Check if user exists
+    const existingUser = await prisma.user.findUnique({ where: { id } });
+    if (!existingUser) {
+      throw new Error('User not found');
+    }
+
+    await prisma.user.delete({ where: { id } });
+    return {
+      status: 200,
+      message: 'User deleted successfully'
+    };
+  } catch (error) {
+    throw error;
+  }
+};
