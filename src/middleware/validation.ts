@@ -129,3 +129,54 @@ export const validateLogin = (req: Request, res: Response, next: NextFunction): 
 
   next();
 };
+
+// validation middleware for create post
+export const validateCreatePost = (req: Request, res: Response, next: NextFunction): void => {
+  const { userId, content } = req.body;
+
+  // Check required fields
+  if (!userId) {
+    res.status(400).json({
+      status: 400,
+      message: "User ID is required"
+    });
+    return;
+  }
+
+  if (!content) {
+    res.status(400).json({
+      status: 400,
+      message: "Content is required"
+    });
+    return;
+  }
+
+  // Validate content length
+  if (content.trim().length < 1) {
+    res.status(400).json({
+      status: 400,
+      message: "Content cannot be empty"
+    });
+    return;
+  }
+
+  if (content.length > 2000) {
+    res.status(400).json({
+      status: 400,
+      message: "Content must be less than 2000 characters"
+    });
+    return;
+  }
+
+  // Validate userId format (should be UUID)
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  if (!uuidRegex.test(userId)) {
+    res.status(400).json({
+      status: 400,
+      message: "Invalid user ID format"
+    });
+    return;
+  }
+
+  next();
+};

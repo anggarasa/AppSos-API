@@ -12,6 +12,7 @@ const errorHandler_1 = require("./middleware/errorHandler");
 const notFound_1 = require("./middleware/notFound");
 const user_route_1 = __importDefault(require("./routes/user.route"));
 const auth_route_1 = __importDefault(require("./routes/auth.route"));
+const post_route_1 = __importDefault(require("./routes/post.route"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 app.use((0, helmet_1.default)());
@@ -35,6 +36,7 @@ app.get('/api/v1', (req, res) => {
 });
 app.use('/api/v1/auth', auth_route_1.default);
 app.use('/api/v1/users', user_route_1.default);
+app.use('/api/v1/posts', post_route_1.default);
 app.use(errorHandler_1.errorHandler);
 app.use(notFound_1.notFound);
 exports.default = app;

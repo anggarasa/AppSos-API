@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.validateLogin = exports.validateUpdateUser = exports.validateCreateUser = void 0;
+exports.validateCreatePost = exports.validateLogin = exports.validateUpdateUser = exports.validateCreateUser = void 0;
 const validateCreateUser = (req, res, next) => {
     const { name, username, email, password } = req.body;
     if (!name || !username || !email || !password) {
@@ -112,4 +112,45 @@ const validateLogin = (req, res, next) => {
     next();
 };
 exports.validateLogin = validateLogin;
+const validateCreatePost = (req, res, next) => {
+    const { userId, content } = req.body;
+    if (!userId) {
+        res.status(400).json({
+            status: 400,
+            message: "User ID is required"
+        });
+        return;
+    }
+    if (!content) {
+        res.status(400).json({
+            status: 400,
+            message: "Content is required"
+        });
+        return;
+    }
+    if (content.trim().length < 1) {
+        res.status(400).json({
+            status: 400,
+            message: "Content cannot be empty"
+        });
+        return;
+    }
+    if (content.length > 2000) {
+        res.status(400).json({
+            status: 400,
+            message: "Content must be less than 2000 characters"
+        });
+        return;
+    }
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(userId)) {
+        res.status(400).json({
+            status: 400,
+            message: "Invalid user ID format"
+        });
+        return;
+    }
+    next();
+};
+exports.validateCreatePost = validateCreatePost;
 //# sourceMappingURL=validation.js.map

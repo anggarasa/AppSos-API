@@ -1,9 +1,13 @@
-import prisma from "../config/db";
-import { randomUUID } from "crypto";
-import { supabase } from "../config/supabase";
-
-// find all posts
-export const findPostAll =  () => prisma.post.findMany({
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.deletePostById = exports.insertPost = exports.findPostById = exports.findPostAll = void 0;
+const db_1 = __importDefault(require("../config/db"));
+const crypto_1 = require("crypto");
+const supabase_1 = require("../config/supabase");
+const findPostAll = () => db_1.default.post.findMany({
     select: {
         id: true,
         authorId: true,
@@ -19,10 +23,9 @@ export const findPostAll =  () => prisma.post.findMany({
         }
     }
 });
-
-// find post by id
-export const findPostById = (id: string) => prisma.post.findUnique({
-    where: {id},
+exports.findPostAll = findPostAll;
+const findPostById = (id) => db_1.default.post.findUnique({
+    where: { id },
     select: {
         id: true,
         authorId: true,
@@ -41,103 +44,83 @@ export const findPostById = (id: string) => prisma.post.findUnique({
         }
     }
 });
-
-// create post
-export const insertPost = async (
-    userId: string,
-    data: {
-        content: string,
-        imageFile?: Express.Multer.File,
-    }
-) => {
+exports.findPostById = findPostById;
+const insertPost = async (userId, data) => {
     try {
-        const existingUser = await prisma.user.findUnique({
+        const existingUser = await db_1.default.user.findUnique({
             where: { id: userId }
         });
-        if(!existingUser) {
+        if (!existingUser) {
             throw new Error('User not found');
         }
-
-        const createPayload: any = {
+        const createPayload = {
             content: data.content
         };
-
-        // handle image file upload to storage
         if (data.imageFile) {
             const bucket = 'post_images';
             const fileExt = (data.imageFile.originalname.split('.').pop() || 'jpg').toLowerCase();
-            const fileName = `${randomUUID()}.${fileExt}`;
+            const fileName = `${(0, crypto_1.randomUUID)()}.${fileExt}`;
             const filePath = `${userId}/${fileName}`;
-
-            // upload new post image
-            const { data: uploadData, error: uploadError } = await supabase
-            .storage
-            .from(bucket)
-            .upload(filePath, data.imageFile.buffer, {
-            contentType: data.imageFile.mimetype,
-            upsert: true,
+            const { data: uploadData, error: uploadError } = await supabase_1.supabase
+                .storage
+                .from(bucket)
+                .upload(filePath, data.imageFile.buffer, {
+                contentType: data.imageFile.mimetype,
+                upsert: true,
             });
-
             if (uploadError) {
                 throw new Error(`Failed to upload image: ${uploadError.message}`);
             }
-
-            // Get public URL
-            const { data: publicUrlData } = supabase
-            .storage
-            .from(bucket)
-            .getPublicUrl(filePath);
-
+            const { data: publicUrlData } = supabase_1.supabase
+                .storage
+                .from(bucket)
+                .getPublicUrl(filePath);
             createPayload.imageUrl = publicUrlData.publicUrl;
         }
-
-        const createPost = await prisma.post.create({
+        const createPost = await db_1.default.post.create({
             data: {
                 authorId: userId,
                 content: createPayload.content,
                 imageUrl: createPayload.imageUrl
             }
         });
-
         return createPost;
-    } catch (error: any) {
+    }
+    catch (error) {
         throw error;
     }
-}
-
-
-// delete post
-export const deletePostById = async (id: string) => {
+};
+exports.insertPost = insertPost;
+const deletePostById = async (id) => {
     try {
-        const existingPost = await prisma.post.findUnique({where: {id}});
-        if(!existingPost) {
+        const existingPost = await db_1.default.post.findUnique({ where: { id } });
+        if (!existingPost) {
             throw new Error('Post not found');
         }
-
-        // Clean up image from storage if exists
         if (existingPost.imageUrl) {
             try {
                 const publicUrlPrefix = `/storage/v1/object/public/post_images/`;
                 const idx = existingPost.imageUrl.indexOf(publicUrlPrefix);
                 if (idx !== -1) {
                     const previousPath = existingPost.imageUrl.substring(idx + publicUrlPrefix.length);
-                    await supabase.storage.from('post_images').remove([previousPath]);
+                    await supabase_1.supabase.storage.from('post_images').remove([previousPath]);
                 }
-            } catch (error) {
-                // Log error but don't fail the deletion
+            }
+            catch (error) {
                 console.error('Failed to delete image from storage:', error);
             }
         }
-
-        await prisma.post.delete({
-            where: {id}
+        await db_1.default.post.delete({
+            where: { id }
         });
-
         return {
             status: 200,
             message: 'Post deleted successfully'
         };
-    } catch (error) {
+    }
+    catch (error) {
         throw error;
     }
-}
+};
+exports.deletePostById = deletePostById;
+//# sourceMappingURL=post.service.js.map

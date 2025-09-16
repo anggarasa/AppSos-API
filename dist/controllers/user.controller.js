@@ -6,7 +6,7 @@ const getUsers = async (_, res) => {
     try {
         const users = await (0, user_service_1.findAllUsers)();
         return res.status(200).json({
-            status: 201,
+            status: 200,
             message: "Success",
             data: users,
         });

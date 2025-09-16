@@ -1,64 +1,62 @@
-import { Request, Response } from "express";
-import { deletePostById, findPostAll, findPostById, insertPost } from "../services/post.service";
-
-// get posts
-export const getPosts = async (_: Request, res: Response) => {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.deletePost = exports.createPost = exports.getPost = exports.getPosts = void 0;
+const post_service_1 = require("../services/post.service");
+const getPosts = async (_, res) => {
     try {
-        const posts = await findPostAll();
+        const posts = await (0, post_service_1.findPostAll)();
         return res.status(200).json({
             status: 200,
             message: "Success",
             data: posts
         });
-    } catch (error) {
+    }
+    catch (error) {
         return res.status(500).json({
             status: 500,
             message: "Internal Server Error",
             data: []
         });
     }
-}
-
-// get post by id
-export const getPost = async (req: Request, res: Response) => {
-    const id: string = req.params.id;
-
+};
+exports.getPosts = getPosts;
+const getPost = async (req, res) => {
+    const id = req.params.id;
     try {
-        const post = await findPostById(id);
+        const post = await (0, post_service_1.findPostById)(id);
         if (!post) {
             return res.status(404).json({
                 status: 404,
                 message: "Post not found"
             });
         }
-
         return res.status(200).json({
             status: 200,
             message: "Success",
             data: post
         });
-    } catch (error) {
+    }
+    catch (error) {
         return res.status(500).json({
             status: 500,
             message: "Internal server error",
             data: {}
         });
     }
-}
-
-// create post
-export const createPost = async (req: Request, res: Response) => {
+};
+exports.getPost = getPost;
+const createPost = async (req, res) => {
     const { userId, content } = req.body;
-    const imageFile = req.file as Express.Multer.File | undefined;
-
+    const imageFile = req.file;
     try {
-        const result = await insertPost(userId, { content, imageFile });
+        const result = await (0, post_service_1.insertPost)(userId, { content, imageFile });
         return res.status(201).json({
             status: 201,
             message: "Post created successfully",
             data: result
         });
-    } catch (error: any) {
+    }
+    catch (error) {
         if (error.message === 'User not found') {
             return res.status(404).json({
                 status: 404,
@@ -72,23 +70,23 @@ export const createPost = async (req: Request, res: Response) => {
             data: {}
         });
     }
-}
-
-// delete post
-export const deletePost = async (req: Request, res: Response) => {
-    const id: string = req.params.id;
-
+};
+exports.createPost = createPost;
+const deletePost = async (req, res) => {
+    const id = req.params.id;
     try {
-        const result = await deletePostById(id);
+        const result = await (0, post_service_1.deletePostById)(id);
         return res.status(200).json(result);
-    } catch (error: any) {
-        if(error.message === 'Post not found') {
+    }
+    catch (error) {
+        if (error.message === 'Post not found') {
             return res.status(404).json({
                 status: 404,
                 message: error.message,
                 data: {}
             });
-        } else {
+        }
+        else {
             return res.status(500).json({
                 status: 500,
                 message: "Internal server error",
@@ -96,4 +94,6 @@ export const deletePost = async (req: Request, res: Response) => {
             });
         }
     }
-}
+};
+exports.deletePost = deletePost;
+//# sourceMappingURL=post.controller.js.map
