@@ -247,3 +247,44 @@ export const validateCreateComment = (req: Request, res: Response, next: NextFun
 
   next();
 };
+
+// validation middleware for create like
+export const validateCreateLike = (req: Request, res: Response, next: NextFunction): void => {
+  const { userId, postId } = req.body;
+
+  // Check required fields
+  if (!userId) {
+    res.status(400).json({
+      status: 400,
+      message: "User ID is required"
+    });
+    return;
+  }
+
+  if (!postId) {
+    res.status(400).json({
+      status: 400,
+      message: "User ID is required"
+    });
+    return;
+  }
+
+  // Validate userId format (should be UUID)
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  if (!uuidRegex.test(userId)) {
+    res.status(400).json({
+      status: 400,
+      message: "Invalid user ID format"
+    });
+    return;
+  }
+  if (!uuidRegex.test(postId)) {
+    res.status(400).json({
+      status: 400,
+      message: "Invalid user ID format"
+    });
+    return;
+  }
+
+  next();
+};

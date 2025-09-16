@@ -9,6 +9,7 @@ import userRouter from './routes/user.route';
 import authRouter from './routes/auth.route';
 import postRouter from './routes/post.route';
 import commentRouter from './routes/comment.route';
+import likeRouter from './routes/like.route';
 
 // load environment variables from .env file
 dotenv.config();
@@ -50,6 +51,7 @@ app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/posts', postRouter);
 app.use('/api/v1/comment', commentRouter);
+app.use('/api/v1/like', likeRouter);
 
 // error handling middleware
 app.use(errorHandler);
