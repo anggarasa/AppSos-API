@@ -11,6 +11,9 @@ export const insertLike = async (
         const existingUser = await prisma.user.findUnique({
             where: {id: userId}
         });
+        if (existingUser || existingPost) {
+            throw new Error('User or Post already exists');
+        }
         if (!existingUser) {
             throw new Error('User not found');
         }

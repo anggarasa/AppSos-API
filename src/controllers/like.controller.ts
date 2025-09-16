@@ -24,6 +24,12 @@ export const createLike = async (req: Request, res: Response) => {
                 message: error.message,
                 data: {}
             });
+        } else if (error.message === "User or Post already exists") {
+            return res.status(409).json({
+                status: 409,
+                message: error.message,
+                data: {}
+            })
         } else {
             return res.status(500).json({
                 status: 500,

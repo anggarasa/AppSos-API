@@ -19,7 +19,8 @@ export const findPostAll =  () => prisma.post.findMany({
         },
         _count: {
             select: {
-                comments: true
+                comments: true,
+                likes: true
             }
         }
     }
@@ -55,6 +56,12 @@ export const findPostById = (id: string) => prisma.post.findUnique({
                         avatarUrl: true
                     }
                 }
+            }
+        },
+        _count: {
+            select: {
+                comments: true,
+                likes: true
             }
         }
     }
