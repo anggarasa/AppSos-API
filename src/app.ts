@@ -8,6 +8,7 @@ import { notFound } from './middleware/notFound';
 import userRouter from './routes/user.route';
 import authRouter from './routes/auth.route';
 import postRouter from './routes/post.route';
+import commentRouter from './routes/comment.route';
 
 // load environment variables from .env file
 dotenv.config();
@@ -48,6 +49,7 @@ app.get('/api/v1', (req, res) => {
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/posts', postRouter);
+app.use('/api/v1/comment', commentRouter);
 
 // error handling middleware
 app.use(errorHandler);

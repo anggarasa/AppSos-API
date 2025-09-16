@@ -16,6 +16,11 @@ export const findPostAll =  () => prisma.post.findMany({
                 username: true,
                 avatarUrl: true
             }
+        },
+        _count: {
+            select: {
+                comments: true
+            }
         }
     }
 });
@@ -37,6 +42,19 @@ export const findPostById = (id: string) => prisma.post.findUnique({
                 username: true,
                 email: true,
                 avatarUrl: true
+            }
+        },
+        comments: {
+            select: {
+                id: true,
+                content: true,
+                author: {
+                    select: {
+                        id: true,
+                        username: true,
+                        avatarUrl: true
+                    }
+                }
             }
         }
     }
