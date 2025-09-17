@@ -33,6 +33,11 @@ export type Comment = $Result.DefaultSelection<Prisma.$CommentPayload>
  * 
  */
 export type Like = $Result.DefaultSelection<Prisma.$LikePayload>
+/**
+ * Model Save
+ * 
+ */
+export type Save = $Result.DefaultSelection<Prisma.$SavePayload>
 
 /**
  * ##  Prisma Client ʲˢ
@@ -191,6 +196,16 @@ export class PrismaClient<
     * ```
     */
   get like(): Prisma.LikeDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.save`: Exposes CRUD operations for the **Save** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Saves
+    * const saves = await prisma.save.findMany()
+    * ```
+    */
+  get save(): Prisma.SaveDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -634,7 +649,8 @@ export namespace Prisma {
     User: 'User',
     Post: 'Post',
     Comment: 'Comment',
-    Like: 'Like'
+    Like: 'Like',
+    Save: 'Save'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -653,7 +669,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "post" | "comment" | "like"
+      modelProps: "user" | "post" | "comment" | "like" | "save"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -953,6 +969,80 @@ export namespace Prisma {
           }
         }
       }
+      Save: {
+        payload: Prisma.$SavePayload<ExtArgs>
+        fields: Prisma.SaveFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.SaveFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SavePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.SaveFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SavePayload>
+          }
+          findFirst: {
+            args: Prisma.SaveFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SavePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.SaveFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SavePayload>
+          }
+          findMany: {
+            args: Prisma.SaveFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SavePayload>[]
+          }
+          create: {
+            args: Prisma.SaveCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SavePayload>
+          }
+          createMany: {
+            args: Prisma.SaveCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.SaveCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SavePayload>[]
+          }
+          delete: {
+            args: Prisma.SaveDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SavePayload>
+          }
+          update: {
+            args: Prisma.SaveUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SavePayload>
+          }
+          deleteMany: {
+            args: Prisma.SaveDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.SaveUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.SaveUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SavePayload>[]
+          }
+          upsert: {
+            args: Prisma.SaveUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SavePayload>
+          }
+          aggregate: {
+            args: Prisma.SaveAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateSave>
+          }
+          groupBy: {
+            args: Prisma.SaveGroupByArgs<ExtArgs>
+            result: $Utils.Optional<SaveGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.SaveCountArgs<ExtArgs>
+            result: $Utils.Optional<SaveCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -1053,6 +1143,7 @@ export namespace Prisma {
     post?: PostOmit
     comment?: CommentOmit
     like?: LikeOmit
+    save?: SaveOmit
   }
 
   /* Types for Logging */
@@ -1136,12 +1227,14 @@ export namespace Prisma {
     posts: number
     comments: number
     likes: number
+    saves: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     posts?: boolean | UserCountOutputTypeCountPostsArgs
     comments?: boolean | UserCountOutputTypeCountCommentsArgs
     likes?: boolean | UserCountOutputTypeCountLikesArgs
+    saves?: boolean | UserCountOutputTypeCountSavesArgs
   }
 
   // Custom InputTypes
@@ -1176,6 +1269,13 @@ export namespace Prisma {
     where?: LikeWhereInput
   }
 
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountSavesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SaveWhereInput
+  }
+
 
   /**
    * Count Type PostCountOutputType
@@ -1184,11 +1284,13 @@ export namespace Prisma {
   export type PostCountOutputType = {
     comments: number
     likes: number
+    saves: number
   }
 
   export type PostCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     comments?: boolean | PostCountOutputTypeCountCommentsArgs
     likes?: boolean | PostCountOutputTypeCountLikesArgs
+    saves?: boolean | PostCountOutputTypeCountSavesArgs
   }
 
   // Custom InputTypes
@@ -1214,6 +1316,13 @@ export namespace Prisma {
    */
   export type PostCountOutputTypeCountLikesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: LikeWhereInput
+  }
+
+  /**
+   * PostCountOutputType without action
+   */
+  export type PostCountOutputTypeCountSavesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SaveWhereInput
   }
 
 
@@ -1420,6 +1529,7 @@ export namespace Prisma {
     posts?: boolean | User$postsArgs<ExtArgs>
     comments?: boolean | User$commentsArgs<ExtArgs>
     likes?: boolean | User$likesArgs<ExtArgs>
+    saves?: boolean | User$savesArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -1464,6 +1574,7 @@ export namespace Prisma {
     posts?: boolean | User$postsArgs<ExtArgs>
     comments?: boolean | User$commentsArgs<ExtArgs>
     likes?: boolean | User$likesArgs<ExtArgs>
+    saves?: boolean | User$savesArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -1475,6 +1586,7 @@ export namespace Prisma {
       posts: Prisma.$PostPayload<ExtArgs>[]
       comments: Prisma.$CommentPayload<ExtArgs>[]
       likes: Prisma.$LikePayload<ExtArgs>[]
+      saves: Prisma.$SavePayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -1883,6 +1995,7 @@ export namespace Prisma {
     posts<T extends User$postsArgs<ExtArgs> = {}>(args?: Subset<T, User$postsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PostPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     comments<T extends User$commentsArgs<ExtArgs> = {}>(args?: Subset<T, User$commentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CommentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     likes<T extends User$likesArgs<ExtArgs> = {}>(args?: Subset<T, User$likesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LikePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    saves<T extends User$savesArgs<ExtArgs> = {}>(args?: Subset<T, User$savesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SavePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2381,6 +2494,30 @@ export namespace Prisma {
   }
 
   /**
+   * User.saves
+   */
+  export type User$savesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Save
+     */
+    select?: SaveSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Save
+     */
+    omit?: SaveOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SaveInclude<ExtArgs> | null
+    where?: SaveWhereInput
+    orderBy?: SaveOrderByWithRelationInput | SaveOrderByWithRelationInput[]
+    cursor?: SaveWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: SaveScalarFieldEnum | SaveScalarFieldEnum[]
+  }
+
+  /**
    * User without action
    */
   export type UserDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -2574,6 +2711,7 @@ export namespace Prisma {
     author?: boolean | UserDefaultArgs<ExtArgs>
     comments?: boolean | Post$commentsArgs<ExtArgs>
     likes?: boolean | Post$likesArgs<ExtArgs>
+    saves?: boolean | Post$savesArgs<ExtArgs>
     _count?: boolean | PostCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["post"]>
 
@@ -2611,6 +2749,7 @@ export namespace Prisma {
     author?: boolean | UserDefaultArgs<ExtArgs>
     comments?: boolean | Post$commentsArgs<ExtArgs>
     likes?: boolean | Post$likesArgs<ExtArgs>
+    saves?: boolean | Post$savesArgs<ExtArgs>
     _count?: boolean | PostCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type PostIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -2626,6 +2765,7 @@ export namespace Prisma {
       author: Prisma.$UserPayload<ExtArgs>
       comments: Prisma.$CommentPayload<ExtArgs>[]
       likes: Prisma.$LikePayload<ExtArgs>[]
+      saves: Prisma.$SavePayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -3031,6 +3171,7 @@ export namespace Prisma {
     author<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     comments<T extends Post$commentsArgs<ExtArgs> = {}>(args?: Subset<T, Post$commentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CommentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     likes<T extends Post$likesArgs<ExtArgs> = {}>(args?: Subset<T, Post$likesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LikePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    saves<T extends Post$savesArgs<ExtArgs> = {}>(args?: Subset<T, Post$savesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SavePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3507,6 +3648,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: LikeScalarFieldEnum | LikeScalarFieldEnum[]
+  }
+
+  /**
+   * Post.saves
+   */
+  export type Post$savesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Save
+     */
+    select?: SaveSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Save
+     */
+    omit?: SaveOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SaveInclude<ExtArgs> | null
+    where?: SaveWhereInput
+    orderBy?: SaveOrderByWithRelationInput | SaveOrderByWithRelationInput[]
+    cursor?: SaveWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: SaveScalarFieldEnum | SaveScalarFieldEnum[]
   }
 
   /**
@@ -5661,6 +5826,1059 @@ export namespace Prisma {
 
 
   /**
+   * Model Save
+   */
+
+  export type AggregateSave = {
+    _count: SaveCountAggregateOutputType | null
+    _min: SaveMinAggregateOutputType | null
+    _max: SaveMaxAggregateOutputType | null
+  }
+
+  export type SaveMinAggregateOutputType = {
+    id: string | null
+    postId: string | null
+    userId: string | null
+    createdAt: Date | null
+  }
+
+  export type SaveMaxAggregateOutputType = {
+    id: string | null
+    postId: string | null
+    userId: string | null
+    createdAt: Date | null
+  }
+
+  export type SaveCountAggregateOutputType = {
+    id: number
+    postId: number
+    userId: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type SaveMinAggregateInputType = {
+    id?: true
+    postId?: true
+    userId?: true
+    createdAt?: true
+  }
+
+  export type SaveMaxAggregateInputType = {
+    id?: true
+    postId?: true
+    userId?: true
+    createdAt?: true
+  }
+
+  export type SaveCountAggregateInputType = {
+    id?: true
+    postId?: true
+    userId?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type SaveAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Save to aggregate.
+     */
+    where?: SaveWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Saves to fetch.
+     */
+    orderBy?: SaveOrderByWithRelationInput | SaveOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: SaveWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Saves from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Saves.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Saves
+    **/
+    _count?: true | SaveCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: SaveMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: SaveMaxAggregateInputType
+  }
+
+  export type GetSaveAggregateType<T extends SaveAggregateArgs> = {
+        [P in keyof T & keyof AggregateSave]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateSave[P]>
+      : GetScalarType<T[P], AggregateSave[P]>
+  }
+
+
+
+
+  export type SaveGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SaveWhereInput
+    orderBy?: SaveOrderByWithAggregationInput | SaveOrderByWithAggregationInput[]
+    by: SaveScalarFieldEnum[] | SaveScalarFieldEnum
+    having?: SaveScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: SaveCountAggregateInputType | true
+    _min?: SaveMinAggregateInputType
+    _max?: SaveMaxAggregateInputType
+  }
+
+  export type SaveGroupByOutputType = {
+    id: string
+    postId: string
+    userId: string
+    createdAt: Date
+    _count: SaveCountAggregateOutputType | null
+    _min: SaveMinAggregateOutputType | null
+    _max: SaveMaxAggregateOutputType | null
+  }
+
+  type GetSaveGroupByPayload<T extends SaveGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<SaveGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof SaveGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], SaveGroupByOutputType[P]>
+            : GetScalarType<T[P], SaveGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type SaveSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    postId?: boolean
+    userId?: boolean
+    createdAt?: boolean
+    post?: boolean | PostDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["save"]>
+
+  export type SaveSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    postId?: boolean
+    userId?: boolean
+    createdAt?: boolean
+    post?: boolean | PostDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["save"]>
+
+  export type SaveSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    postId?: boolean
+    userId?: boolean
+    createdAt?: boolean
+    post?: boolean | PostDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["save"]>
+
+  export type SaveSelectScalar = {
+    id?: boolean
+    postId?: boolean
+    userId?: boolean
+    createdAt?: boolean
+  }
+
+  export type SaveOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "postId" | "userId" | "createdAt", ExtArgs["result"]["save"]>
+  export type SaveInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    post?: boolean | PostDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type SaveIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    post?: boolean | PostDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type SaveIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    post?: boolean | PostDefaultArgs<ExtArgs>
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $SavePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Save"
+    objects: {
+      post: Prisma.$PostPayload<ExtArgs>
+      user: Prisma.$UserPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      postId: string
+      userId: string
+      createdAt: Date
+    }, ExtArgs["result"]["save"]>
+    composites: {}
+  }
+
+  type SaveGetPayload<S extends boolean | null | undefined | SaveDefaultArgs> = $Result.GetResult<Prisma.$SavePayload, S>
+
+  type SaveCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<SaveFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: SaveCountAggregateInputType | true
+    }
+
+  export interface SaveDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Save'], meta: { name: 'Save' } }
+    /**
+     * Find zero or one Save that matches the filter.
+     * @param {SaveFindUniqueArgs} args - Arguments to find a Save
+     * @example
+     * // Get one Save
+     * const save = await prisma.save.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends SaveFindUniqueArgs>(args: SelectSubset<T, SaveFindUniqueArgs<ExtArgs>>): Prisma__SaveClient<$Result.GetResult<Prisma.$SavePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Save that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {SaveFindUniqueOrThrowArgs} args - Arguments to find a Save
+     * @example
+     * // Get one Save
+     * const save = await prisma.save.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends SaveFindUniqueOrThrowArgs>(args: SelectSubset<T, SaveFindUniqueOrThrowArgs<ExtArgs>>): Prisma__SaveClient<$Result.GetResult<Prisma.$SavePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Save that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SaveFindFirstArgs} args - Arguments to find a Save
+     * @example
+     * // Get one Save
+     * const save = await prisma.save.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends SaveFindFirstArgs>(args?: SelectSubset<T, SaveFindFirstArgs<ExtArgs>>): Prisma__SaveClient<$Result.GetResult<Prisma.$SavePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Save that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SaveFindFirstOrThrowArgs} args - Arguments to find a Save
+     * @example
+     * // Get one Save
+     * const save = await prisma.save.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends SaveFindFirstOrThrowArgs>(args?: SelectSubset<T, SaveFindFirstOrThrowArgs<ExtArgs>>): Prisma__SaveClient<$Result.GetResult<Prisma.$SavePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Saves that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SaveFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Saves
+     * const saves = await prisma.save.findMany()
+     * 
+     * // Get first 10 Saves
+     * const saves = await prisma.save.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const saveWithIdOnly = await prisma.save.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends SaveFindManyArgs>(args?: SelectSubset<T, SaveFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SavePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Save.
+     * @param {SaveCreateArgs} args - Arguments to create a Save.
+     * @example
+     * // Create one Save
+     * const Save = await prisma.save.create({
+     *   data: {
+     *     // ... data to create a Save
+     *   }
+     * })
+     * 
+     */
+    create<T extends SaveCreateArgs>(args: SelectSubset<T, SaveCreateArgs<ExtArgs>>): Prisma__SaveClient<$Result.GetResult<Prisma.$SavePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Saves.
+     * @param {SaveCreateManyArgs} args - Arguments to create many Saves.
+     * @example
+     * // Create many Saves
+     * const save = await prisma.save.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends SaveCreateManyArgs>(args?: SelectSubset<T, SaveCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Saves and returns the data saved in the database.
+     * @param {SaveCreateManyAndReturnArgs} args - Arguments to create many Saves.
+     * @example
+     * // Create many Saves
+     * const save = await prisma.save.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Saves and only return the `id`
+     * const saveWithIdOnly = await prisma.save.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends SaveCreateManyAndReturnArgs>(args?: SelectSubset<T, SaveCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SavePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a Save.
+     * @param {SaveDeleteArgs} args - Arguments to delete one Save.
+     * @example
+     * // Delete one Save
+     * const Save = await prisma.save.delete({
+     *   where: {
+     *     // ... filter to delete one Save
+     *   }
+     * })
+     * 
+     */
+    delete<T extends SaveDeleteArgs>(args: SelectSubset<T, SaveDeleteArgs<ExtArgs>>): Prisma__SaveClient<$Result.GetResult<Prisma.$SavePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Save.
+     * @param {SaveUpdateArgs} args - Arguments to update one Save.
+     * @example
+     * // Update one Save
+     * const save = await prisma.save.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends SaveUpdateArgs>(args: SelectSubset<T, SaveUpdateArgs<ExtArgs>>): Prisma__SaveClient<$Result.GetResult<Prisma.$SavePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Saves.
+     * @param {SaveDeleteManyArgs} args - Arguments to filter Saves to delete.
+     * @example
+     * // Delete a few Saves
+     * const { count } = await prisma.save.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends SaveDeleteManyArgs>(args?: SelectSubset<T, SaveDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Saves.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SaveUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Saves
+     * const save = await prisma.save.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends SaveUpdateManyArgs>(args: SelectSubset<T, SaveUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Saves and returns the data updated in the database.
+     * @param {SaveUpdateManyAndReturnArgs} args - Arguments to update many Saves.
+     * @example
+     * // Update many Saves
+     * const save = await prisma.save.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Saves and only return the `id`
+     * const saveWithIdOnly = await prisma.save.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends SaveUpdateManyAndReturnArgs>(args: SelectSubset<T, SaveUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SavePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one Save.
+     * @param {SaveUpsertArgs} args - Arguments to update or create a Save.
+     * @example
+     * // Update or create a Save
+     * const save = await prisma.save.upsert({
+     *   create: {
+     *     // ... data to create a Save
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Save we want to update
+     *   }
+     * })
+     */
+    upsert<T extends SaveUpsertArgs>(args: SelectSubset<T, SaveUpsertArgs<ExtArgs>>): Prisma__SaveClient<$Result.GetResult<Prisma.$SavePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Saves.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SaveCountArgs} args - Arguments to filter Saves to count.
+     * @example
+     * // Count the number of Saves
+     * const count = await prisma.save.count({
+     *   where: {
+     *     // ... the filter for the Saves we want to count
+     *   }
+     * })
+    **/
+    count<T extends SaveCountArgs>(
+      args?: Subset<T, SaveCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], SaveCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Save.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SaveAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends SaveAggregateArgs>(args: Subset<T, SaveAggregateArgs>): Prisma.PrismaPromise<GetSaveAggregateType<T>>
+
+    /**
+     * Group by Save.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SaveGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends SaveGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: SaveGroupByArgs['orderBy'] }
+        : { orderBy?: SaveGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, SaveGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetSaveGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Save model
+   */
+  readonly fields: SaveFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Save.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__SaveClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    post<T extends PostDefaultArgs<ExtArgs> = {}>(args?: Subset<T, PostDefaultArgs<ExtArgs>>): Prisma__PostClient<$Result.GetResult<Prisma.$PostPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Save model
+   */
+  interface SaveFieldRefs {
+    readonly id: FieldRef<"Save", 'String'>
+    readonly postId: FieldRef<"Save", 'String'>
+    readonly userId: FieldRef<"Save", 'String'>
+    readonly createdAt: FieldRef<"Save", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Save findUnique
+   */
+  export type SaveFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Save
+     */
+    select?: SaveSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Save
+     */
+    omit?: SaveOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SaveInclude<ExtArgs> | null
+    /**
+     * Filter, which Save to fetch.
+     */
+    where: SaveWhereUniqueInput
+  }
+
+  /**
+   * Save findUniqueOrThrow
+   */
+  export type SaveFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Save
+     */
+    select?: SaveSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Save
+     */
+    omit?: SaveOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SaveInclude<ExtArgs> | null
+    /**
+     * Filter, which Save to fetch.
+     */
+    where: SaveWhereUniqueInput
+  }
+
+  /**
+   * Save findFirst
+   */
+  export type SaveFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Save
+     */
+    select?: SaveSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Save
+     */
+    omit?: SaveOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SaveInclude<ExtArgs> | null
+    /**
+     * Filter, which Save to fetch.
+     */
+    where?: SaveWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Saves to fetch.
+     */
+    orderBy?: SaveOrderByWithRelationInput | SaveOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Saves.
+     */
+    cursor?: SaveWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Saves from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Saves.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Saves.
+     */
+    distinct?: SaveScalarFieldEnum | SaveScalarFieldEnum[]
+  }
+
+  /**
+   * Save findFirstOrThrow
+   */
+  export type SaveFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Save
+     */
+    select?: SaveSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Save
+     */
+    omit?: SaveOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SaveInclude<ExtArgs> | null
+    /**
+     * Filter, which Save to fetch.
+     */
+    where?: SaveWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Saves to fetch.
+     */
+    orderBy?: SaveOrderByWithRelationInput | SaveOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Saves.
+     */
+    cursor?: SaveWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Saves from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Saves.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Saves.
+     */
+    distinct?: SaveScalarFieldEnum | SaveScalarFieldEnum[]
+  }
+
+  /**
+   * Save findMany
+   */
+  export type SaveFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Save
+     */
+    select?: SaveSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Save
+     */
+    omit?: SaveOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SaveInclude<ExtArgs> | null
+    /**
+     * Filter, which Saves to fetch.
+     */
+    where?: SaveWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Saves to fetch.
+     */
+    orderBy?: SaveOrderByWithRelationInput | SaveOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Saves.
+     */
+    cursor?: SaveWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Saves from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Saves.
+     */
+    skip?: number
+    distinct?: SaveScalarFieldEnum | SaveScalarFieldEnum[]
+  }
+
+  /**
+   * Save create
+   */
+  export type SaveCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Save
+     */
+    select?: SaveSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Save
+     */
+    omit?: SaveOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SaveInclude<ExtArgs> | null
+    /**
+     * The data needed to create a Save.
+     */
+    data: XOR<SaveCreateInput, SaveUncheckedCreateInput>
+  }
+
+  /**
+   * Save createMany
+   */
+  export type SaveCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Saves.
+     */
+    data: SaveCreateManyInput | SaveCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Save createManyAndReturn
+   */
+  export type SaveCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Save
+     */
+    select?: SaveSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Save
+     */
+    omit?: SaveOmit<ExtArgs> | null
+    /**
+     * The data used to create many Saves.
+     */
+    data: SaveCreateManyInput | SaveCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SaveIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * Save update
+   */
+  export type SaveUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Save
+     */
+    select?: SaveSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Save
+     */
+    omit?: SaveOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SaveInclude<ExtArgs> | null
+    /**
+     * The data needed to update a Save.
+     */
+    data: XOR<SaveUpdateInput, SaveUncheckedUpdateInput>
+    /**
+     * Choose, which Save to update.
+     */
+    where: SaveWhereUniqueInput
+  }
+
+  /**
+   * Save updateMany
+   */
+  export type SaveUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Saves.
+     */
+    data: XOR<SaveUpdateManyMutationInput, SaveUncheckedUpdateManyInput>
+    /**
+     * Filter which Saves to update
+     */
+    where?: SaveWhereInput
+    /**
+     * Limit how many Saves to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Save updateManyAndReturn
+   */
+  export type SaveUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Save
+     */
+    select?: SaveSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Save
+     */
+    omit?: SaveOmit<ExtArgs> | null
+    /**
+     * The data used to update Saves.
+     */
+    data: XOR<SaveUpdateManyMutationInput, SaveUncheckedUpdateManyInput>
+    /**
+     * Filter which Saves to update
+     */
+    where?: SaveWhereInput
+    /**
+     * Limit how many Saves to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SaveIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * Save upsert
+   */
+  export type SaveUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Save
+     */
+    select?: SaveSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Save
+     */
+    omit?: SaveOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SaveInclude<ExtArgs> | null
+    /**
+     * The filter to search for the Save to update in case it exists.
+     */
+    where: SaveWhereUniqueInput
+    /**
+     * In case the Save found by the `where` argument doesn't exist, create a new Save with this data.
+     */
+    create: XOR<SaveCreateInput, SaveUncheckedCreateInput>
+    /**
+     * In case the Save was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<SaveUpdateInput, SaveUncheckedUpdateInput>
+  }
+
+  /**
+   * Save delete
+   */
+  export type SaveDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Save
+     */
+    select?: SaveSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Save
+     */
+    omit?: SaveOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SaveInclude<ExtArgs> | null
+    /**
+     * Filter which Save to delete.
+     */
+    where: SaveWhereUniqueInput
+  }
+
+  /**
+   * Save deleteMany
+   */
+  export type SaveDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Saves to delete
+     */
+    where?: SaveWhereInput
+    /**
+     * Limit how many Saves to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * Save without action
+   */
+  export type SaveDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Save
+     */
+    select?: SaveSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Save
+     */
+    omit?: SaveOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SaveInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -5721,6 +6939,16 @@ export namespace Prisma {
   };
 
   export type LikeScalarFieldEnum = (typeof LikeScalarFieldEnum)[keyof typeof LikeScalarFieldEnum]
+
+
+  export const SaveScalarFieldEnum: {
+    id: 'id',
+    postId: 'postId',
+    userId: 'userId',
+    createdAt: 'createdAt'
+  };
+
+  export type SaveScalarFieldEnum = (typeof SaveScalarFieldEnum)[keyof typeof SaveScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -5813,6 +7041,7 @@ export namespace Prisma {
     posts?: PostListRelationFilter
     comments?: CommentListRelationFilter
     likes?: LikeListRelationFilter
+    saves?: SaveListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
@@ -5828,6 +7057,7 @@ export namespace Prisma {
     posts?: PostOrderByRelationAggregateInput
     comments?: CommentOrderByRelationAggregateInput
     likes?: LikeOrderByRelationAggregateInput
+    saves?: SaveOrderByRelationAggregateInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -5846,6 +7076,7 @@ export namespace Prisma {
     posts?: PostListRelationFilter
     comments?: CommentListRelationFilter
     likes?: LikeListRelationFilter
+    saves?: SaveListRelationFilter
   }, "id" | "email" | "username">
 
   export type UserOrderByWithAggregationInput = {
@@ -5891,6 +7122,7 @@ export namespace Prisma {
     author?: XOR<UserScalarRelationFilter, UserWhereInput>
     comments?: CommentListRelationFilter
     likes?: LikeListRelationFilter
+    saves?: SaveListRelationFilter
   }
 
   export type PostOrderByWithRelationInput = {
@@ -5903,6 +7135,7 @@ export namespace Prisma {
     author?: UserOrderByWithRelationInput
     comments?: CommentOrderByRelationAggregateInput
     likes?: LikeOrderByRelationAggregateInput
+    saves?: SaveOrderByRelationAggregateInput
   }
 
   export type PostWhereUniqueInput = Prisma.AtLeast<{
@@ -5918,6 +7151,7 @@ export namespace Prisma {
     author?: XOR<UserScalarRelationFilter, UserWhereInput>
     comments?: CommentListRelationFilter
     likes?: LikeListRelationFilter
+    saves?: SaveListRelationFilter
   }, "id">
 
   export type PostOrderByWithAggregationInput = {
@@ -6061,6 +7295,60 @@ export namespace Prisma {
     createdAt?: DateTimeWithAggregatesFilter<"Like"> | Date | string
   }
 
+  export type SaveWhereInput = {
+    AND?: SaveWhereInput | SaveWhereInput[]
+    OR?: SaveWhereInput[]
+    NOT?: SaveWhereInput | SaveWhereInput[]
+    id?: StringFilter<"Save"> | string
+    postId?: StringFilter<"Save"> | string
+    userId?: StringFilter<"Save"> | string
+    createdAt?: DateTimeFilter<"Save"> | Date | string
+    post?: XOR<PostScalarRelationFilter, PostWhereInput>
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }
+
+  export type SaveOrderByWithRelationInput = {
+    id?: SortOrder
+    postId?: SortOrder
+    userId?: SortOrder
+    createdAt?: SortOrder
+    post?: PostOrderByWithRelationInput
+    user?: UserOrderByWithRelationInput
+  }
+
+  export type SaveWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    userId_postId?: SaveUserIdPostIdCompoundUniqueInput
+    AND?: SaveWhereInput | SaveWhereInput[]
+    OR?: SaveWhereInput[]
+    NOT?: SaveWhereInput | SaveWhereInput[]
+    postId?: StringFilter<"Save"> | string
+    userId?: StringFilter<"Save"> | string
+    createdAt?: DateTimeFilter<"Save"> | Date | string
+    post?: XOR<PostScalarRelationFilter, PostWhereInput>
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }, "id" | "userId_postId">
+
+  export type SaveOrderByWithAggregationInput = {
+    id?: SortOrder
+    postId?: SortOrder
+    userId?: SortOrder
+    createdAt?: SortOrder
+    _count?: SaveCountOrderByAggregateInput
+    _max?: SaveMaxOrderByAggregateInput
+    _min?: SaveMinOrderByAggregateInput
+  }
+
+  export type SaveScalarWhereWithAggregatesInput = {
+    AND?: SaveScalarWhereWithAggregatesInput | SaveScalarWhereWithAggregatesInput[]
+    OR?: SaveScalarWhereWithAggregatesInput[]
+    NOT?: SaveScalarWhereWithAggregatesInput | SaveScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"Save"> | string
+    postId?: StringWithAggregatesFilter<"Save"> | string
+    userId?: StringWithAggregatesFilter<"Save"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"Save"> | Date | string
+  }
+
   export type UserCreateInput = {
     id?: string
     email: string
@@ -6074,6 +7362,7 @@ export namespace Prisma {
     posts?: PostCreateNestedManyWithoutAuthorInput
     comments?: CommentCreateNestedManyWithoutAuthorInput
     likes?: LikeCreateNestedManyWithoutUserInput
+    saves?: SaveCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -6089,6 +7378,7 @@ export namespace Prisma {
     posts?: PostUncheckedCreateNestedManyWithoutAuthorInput
     comments?: CommentUncheckedCreateNestedManyWithoutAuthorInput
     likes?: LikeUncheckedCreateNestedManyWithoutUserInput
+    saves?: SaveUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserUpdateInput = {
@@ -6104,6 +7394,7 @@ export namespace Prisma {
     posts?: PostUpdateManyWithoutAuthorNestedInput
     comments?: CommentUpdateManyWithoutAuthorNestedInput
     likes?: LikeUpdateManyWithoutUserNestedInput
+    saves?: SaveUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -6119,6 +7410,7 @@ export namespace Prisma {
     posts?: PostUncheckedUpdateManyWithoutAuthorNestedInput
     comments?: CommentUncheckedUpdateManyWithoutAuthorNestedInput
     likes?: LikeUncheckedUpdateManyWithoutUserNestedInput
+    saves?: SaveUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -6166,6 +7458,7 @@ export namespace Prisma {
     author: UserCreateNestedOneWithoutPostsInput
     comments?: CommentCreateNestedManyWithoutPostInput
     likes?: LikeCreateNestedManyWithoutPostInput
+    saves?: SaveCreateNestedManyWithoutPostInput
   }
 
   export type PostUncheckedCreateInput = {
@@ -6177,6 +7470,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     comments?: CommentUncheckedCreateNestedManyWithoutPostInput
     likes?: LikeUncheckedCreateNestedManyWithoutPostInput
+    saves?: SaveUncheckedCreateNestedManyWithoutPostInput
   }
 
   export type PostUpdateInput = {
@@ -6188,6 +7482,7 @@ export namespace Prisma {
     author?: UserUpdateOneRequiredWithoutPostsNestedInput
     comments?: CommentUpdateManyWithoutPostNestedInput
     likes?: LikeUpdateManyWithoutPostNestedInput
+    saves?: SaveUpdateManyWithoutPostNestedInput
   }
 
   export type PostUncheckedUpdateInput = {
@@ -6199,6 +7494,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     comments?: CommentUncheckedUpdateManyWithoutPostNestedInput
     likes?: LikeUncheckedUpdateManyWithoutPostNestedInput
+    saves?: SaveUncheckedUpdateManyWithoutPostNestedInput
   }
 
   export type PostCreateManyInput = {
@@ -6335,6 +7631,53 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type SaveCreateInput = {
+    id?: string
+    createdAt?: Date | string
+    post: PostCreateNestedOneWithoutSavesInput
+    user: UserCreateNestedOneWithoutSavesInput
+  }
+
+  export type SaveUncheckedCreateInput = {
+    id?: string
+    postId: string
+    userId: string
+    createdAt?: Date | string
+  }
+
+  export type SaveUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    post?: PostUpdateOneRequiredWithoutSavesNestedInput
+    user?: UserUpdateOneRequiredWithoutSavesNestedInput
+  }
+
+  export type SaveUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    postId?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SaveCreateManyInput = {
+    id?: string
+    postId: string
+    userId: string
+    createdAt?: Date | string
+  }
+
+  export type SaveUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SaveUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    postId?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -6394,6 +7737,12 @@ export namespace Prisma {
     none?: LikeWhereInput
   }
 
+  export type SaveListRelationFilter = {
+    every?: SaveWhereInput
+    some?: SaveWhereInput
+    none?: SaveWhereInput
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
@@ -6408,6 +7757,10 @@ export namespace Prisma {
   }
 
   export type LikeOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type SaveOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -6587,6 +7940,32 @@ export namespace Prisma {
     createdAt?: SortOrder
   }
 
+  export type SaveUserIdPostIdCompoundUniqueInput = {
+    userId: string
+    postId: string
+  }
+
+  export type SaveCountOrderByAggregateInput = {
+    id?: SortOrder
+    postId?: SortOrder
+    userId?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type SaveMaxOrderByAggregateInput = {
+    id?: SortOrder
+    postId?: SortOrder
+    userId?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type SaveMinOrderByAggregateInput = {
+    id?: SortOrder
+    postId?: SortOrder
+    userId?: SortOrder
+    createdAt?: SortOrder
+  }
+
   export type PostCreateNestedManyWithoutAuthorInput = {
     create?: XOR<PostCreateWithoutAuthorInput, PostUncheckedCreateWithoutAuthorInput> | PostCreateWithoutAuthorInput[] | PostUncheckedCreateWithoutAuthorInput[]
     connectOrCreate?: PostCreateOrConnectWithoutAuthorInput | PostCreateOrConnectWithoutAuthorInput[]
@@ -6608,6 +7987,13 @@ export namespace Prisma {
     connect?: LikeWhereUniqueInput | LikeWhereUniqueInput[]
   }
 
+  export type SaveCreateNestedManyWithoutUserInput = {
+    create?: XOR<SaveCreateWithoutUserInput, SaveUncheckedCreateWithoutUserInput> | SaveCreateWithoutUserInput[] | SaveUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: SaveCreateOrConnectWithoutUserInput | SaveCreateOrConnectWithoutUserInput[]
+    createMany?: SaveCreateManyUserInputEnvelope
+    connect?: SaveWhereUniqueInput | SaveWhereUniqueInput[]
+  }
+
   export type PostUncheckedCreateNestedManyWithoutAuthorInput = {
     create?: XOR<PostCreateWithoutAuthorInput, PostUncheckedCreateWithoutAuthorInput> | PostCreateWithoutAuthorInput[] | PostUncheckedCreateWithoutAuthorInput[]
     connectOrCreate?: PostCreateOrConnectWithoutAuthorInput | PostCreateOrConnectWithoutAuthorInput[]
@@ -6627,6 +8013,13 @@ export namespace Prisma {
     connectOrCreate?: LikeCreateOrConnectWithoutUserInput | LikeCreateOrConnectWithoutUserInput[]
     createMany?: LikeCreateManyUserInputEnvelope
     connect?: LikeWhereUniqueInput | LikeWhereUniqueInput[]
+  }
+
+  export type SaveUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<SaveCreateWithoutUserInput, SaveUncheckedCreateWithoutUserInput> | SaveCreateWithoutUserInput[] | SaveUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: SaveCreateOrConnectWithoutUserInput | SaveCreateOrConnectWithoutUserInput[]
+    createMany?: SaveCreateManyUserInputEnvelope
+    connect?: SaveWhereUniqueInput | SaveWhereUniqueInput[]
   }
 
   export type StringFieldUpdateOperationsInput = {
@@ -6683,6 +8076,20 @@ export namespace Prisma {
     deleteMany?: LikeScalarWhereInput | LikeScalarWhereInput[]
   }
 
+  export type SaveUpdateManyWithoutUserNestedInput = {
+    create?: XOR<SaveCreateWithoutUserInput, SaveUncheckedCreateWithoutUserInput> | SaveCreateWithoutUserInput[] | SaveUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: SaveCreateOrConnectWithoutUserInput | SaveCreateOrConnectWithoutUserInput[]
+    upsert?: SaveUpsertWithWhereUniqueWithoutUserInput | SaveUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: SaveCreateManyUserInputEnvelope
+    set?: SaveWhereUniqueInput | SaveWhereUniqueInput[]
+    disconnect?: SaveWhereUniqueInput | SaveWhereUniqueInput[]
+    delete?: SaveWhereUniqueInput | SaveWhereUniqueInput[]
+    connect?: SaveWhereUniqueInput | SaveWhereUniqueInput[]
+    update?: SaveUpdateWithWhereUniqueWithoutUserInput | SaveUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: SaveUpdateManyWithWhereWithoutUserInput | SaveUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: SaveScalarWhereInput | SaveScalarWhereInput[]
+  }
+
   export type PostUncheckedUpdateManyWithoutAuthorNestedInput = {
     create?: XOR<PostCreateWithoutAuthorInput, PostUncheckedCreateWithoutAuthorInput> | PostCreateWithoutAuthorInput[] | PostUncheckedCreateWithoutAuthorInput[]
     connectOrCreate?: PostCreateOrConnectWithoutAuthorInput | PostCreateOrConnectWithoutAuthorInput[]
@@ -6725,6 +8132,20 @@ export namespace Prisma {
     deleteMany?: LikeScalarWhereInput | LikeScalarWhereInput[]
   }
 
+  export type SaveUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<SaveCreateWithoutUserInput, SaveUncheckedCreateWithoutUserInput> | SaveCreateWithoutUserInput[] | SaveUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: SaveCreateOrConnectWithoutUserInput | SaveCreateOrConnectWithoutUserInput[]
+    upsert?: SaveUpsertWithWhereUniqueWithoutUserInput | SaveUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: SaveCreateManyUserInputEnvelope
+    set?: SaveWhereUniqueInput | SaveWhereUniqueInput[]
+    disconnect?: SaveWhereUniqueInput | SaveWhereUniqueInput[]
+    delete?: SaveWhereUniqueInput | SaveWhereUniqueInput[]
+    connect?: SaveWhereUniqueInput | SaveWhereUniqueInput[]
+    update?: SaveUpdateWithWhereUniqueWithoutUserInput | SaveUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: SaveUpdateManyWithWhereWithoutUserInput | SaveUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: SaveScalarWhereInput | SaveScalarWhereInput[]
+  }
+
   export type UserCreateNestedOneWithoutPostsInput = {
     create?: XOR<UserCreateWithoutPostsInput, UserUncheckedCreateWithoutPostsInput>
     connectOrCreate?: UserCreateOrConnectWithoutPostsInput
@@ -6745,6 +8166,13 @@ export namespace Prisma {
     connect?: LikeWhereUniqueInput | LikeWhereUniqueInput[]
   }
 
+  export type SaveCreateNestedManyWithoutPostInput = {
+    create?: XOR<SaveCreateWithoutPostInput, SaveUncheckedCreateWithoutPostInput> | SaveCreateWithoutPostInput[] | SaveUncheckedCreateWithoutPostInput[]
+    connectOrCreate?: SaveCreateOrConnectWithoutPostInput | SaveCreateOrConnectWithoutPostInput[]
+    createMany?: SaveCreateManyPostInputEnvelope
+    connect?: SaveWhereUniqueInput | SaveWhereUniqueInput[]
+  }
+
   export type CommentUncheckedCreateNestedManyWithoutPostInput = {
     create?: XOR<CommentCreateWithoutPostInput, CommentUncheckedCreateWithoutPostInput> | CommentCreateWithoutPostInput[] | CommentUncheckedCreateWithoutPostInput[]
     connectOrCreate?: CommentCreateOrConnectWithoutPostInput | CommentCreateOrConnectWithoutPostInput[]
@@ -6757,6 +8185,13 @@ export namespace Prisma {
     connectOrCreate?: LikeCreateOrConnectWithoutPostInput | LikeCreateOrConnectWithoutPostInput[]
     createMany?: LikeCreateManyPostInputEnvelope
     connect?: LikeWhereUniqueInput | LikeWhereUniqueInput[]
+  }
+
+  export type SaveUncheckedCreateNestedManyWithoutPostInput = {
+    create?: XOR<SaveCreateWithoutPostInput, SaveUncheckedCreateWithoutPostInput> | SaveCreateWithoutPostInput[] | SaveUncheckedCreateWithoutPostInput[]
+    connectOrCreate?: SaveCreateOrConnectWithoutPostInput | SaveCreateOrConnectWithoutPostInput[]
+    createMany?: SaveCreateManyPostInputEnvelope
+    connect?: SaveWhereUniqueInput | SaveWhereUniqueInput[]
   }
 
   export type UserUpdateOneRequiredWithoutPostsNestedInput = {
@@ -6795,6 +8230,20 @@ export namespace Prisma {
     deleteMany?: LikeScalarWhereInput | LikeScalarWhereInput[]
   }
 
+  export type SaveUpdateManyWithoutPostNestedInput = {
+    create?: XOR<SaveCreateWithoutPostInput, SaveUncheckedCreateWithoutPostInput> | SaveCreateWithoutPostInput[] | SaveUncheckedCreateWithoutPostInput[]
+    connectOrCreate?: SaveCreateOrConnectWithoutPostInput | SaveCreateOrConnectWithoutPostInput[]
+    upsert?: SaveUpsertWithWhereUniqueWithoutPostInput | SaveUpsertWithWhereUniqueWithoutPostInput[]
+    createMany?: SaveCreateManyPostInputEnvelope
+    set?: SaveWhereUniqueInput | SaveWhereUniqueInput[]
+    disconnect?: SaveWhereUniqueInput | SaveWhereUniqueInput[]
+    delete?: SaveWhereUniqueInput | SaveWhereUniqueInput[]
+    connect?: SaveWhereUniqueInput | SaveWhereUniqueInput[]
+    update?: SaveUpdateWithWhereUniqueWithoutPostInput | SaveUpdateWithWhereUniqueWithoutPostInput[]
+    updateMany?: SaveUpdateManyWithWhereWithoutPostInput | SaveUpdateManyWithWhereWithoutPostInput[]
+    deleteMany?: SaveScalarWhereInput | SaveScalarWhereInput[]
+  }
+
   export type CommentUncheckedUpdateManyWithoutPostNestedInput = {
     create?: XOR<CommentCreateWithoutPostInput, CommentUncheckedCreateWithoutPostInput> | CommentCreateWithoutPostInput[] | CommentUncheckedCreateWithoutPostInput[]
     connectOrCreate?: CommentCreateOrConnectWithoutPostInput | CommentCreateOrConnectWithoutPostInput[]
@@ -6821,6 +8270,20 @@ export namespace Prisma {
     update?: LikeUpdateWithWhereUniqueWithoutPostInput | LikeUpdateWithWhereUniqueWithoutPostInput[]
     updateMany?: LikeUpdateManyWithWhereWithoutPostInput | LikeUpdateManyWithWhereWithoutPostInput[]
     deleteMany?: LikeScalarWhereInput | LikeScalarWhereInput[]
+  }
+
+  export type SaveUncheckedUpdateManyWithoutPostNestedInput = {
+    create?: XOR<SaveCreateWithoutPostInput, SaveUncheckedCreateWithoutPostInput> | SaveCreateWithoutPostInput[] | SaveUncheckedCreateWithoutPostInput[]
+    connectOrCreate?: SaveCreateOrConnectWithoutPostInput | SaveCreateOrConnectWithoutPostInput[]
+    upsert?: SaveUpsertWithWhereUniqueWithoutPostInput | SaveUpsertWithWhereUniqueWithoutPostInput[]
+    createMany?: SaveCreateManyPostInputEnvelope
+    set?: SaveWhereUniqueInput | SaveWhereUniqueInput[]
+    disconnect?: SaveWhereUniqueInput | SaveWhereUniqueInput[]
+    delete?: SaveWhereUniqueInput | SaveWhereUniqueInput[]
+    connect?: SaveWhereUniqueInput | SaveWhereUniqueInput[]
+    update?: SaveUpdateWithWhereUniqueWithoutPostInput | SaveUpdateWithWhereUniqueWithoutPostInput[]
+    updateMany?: SaveUpdateManyWithWhereWithoutPostInput | SaveUpdateManyWithWhereWithoutPostInput[]
+    deleteMany?: SaveScalarWhereInput | SaveScalarWhereInput[]
   }
 
   export type PostCreateNestedOneWithoutCommentsInput = {
@@ -6877,6 +8340,34 @@ export namespace Prisma {
     upsert?: UserUpsertWithoutLikesInput
     connect?: UserWhereUniqueInput
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutLikesInput, UserUpdateWithoutLikesInput>, UserUncheckedUpdateWithoutLikesInput>
+  }
+
+  export type PostCreateNestedOneWithoutSavesInput = {
+    create?: XOR<PostCreateWithoutSavesInput, PostUncheckedCreateWithoutSavesInput>
+    connectOrCreate?: PostCreateOrConnectWithoutSavesInput
+    connect?: PostWhereUniqueInput
+  }
+
+  export type UserCreateNestedOneWithoutSavesInput = {
+    create?: XOR<UserCreateWithoutSavesInput, UserUncheckedCreateWithoutSavesInput>
+    connectOrCreate?: UserCreateOrConnectWithoutSavesInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type PostUpdateOneRequiredWithoutSavesNestedInput = {
+    create?: XOR<PostCreateWithoutSavesInput, PostUncheckedCreateWithoutSavesInput>
+    connectOrCreate?: PostCreateOrConnectWithoutSavesInput
+    upsert?: PostUpsertWithoutSavesInput
+    connect?: PostWhereUniqueInput
+    update?: XOR<XOR<PostUpdateToOneWithWhereWithoutSavesInput, PostUpdateWithoutSavesInput>, PostUncheckedUpdateWithoutSavesInput>
+  }
+
+  export type UserUpdateOneRequiredWithoutSavesNestedInput = {
+    create?: XOR<UserCreateWithoutSavesInput, UserUncheckedCreateWithoutSavesInput>
+    connectOrCreate?: UserCreateOrConnectWithoutSavesInput
+    upsert?: UserUpsertWithoutSavesInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutSavesInput, UserUpdateWithoutSavesInput>, UserUncheckedUpdateWithoutSavesInput>
   }
 
   export type NestedStringFilter<$PrismaModel = never> = {
@@ -6996,6 +8487,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     comments?: CommentCreateNestedManyWithoutPostInput
     likes?: LikeCreateNestedManyWithoutPostInput
+    saves?: SaveCreateNestedManyWithoutPostInput
   }
 
   export type PostUncheckedCreateWithoutAuthorInput = {
@@ -7006,6 +8498,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     comments?: CommentUncheckedCreateNestedManyWithoutPostInput
     likes?: LikeUncheckedCreateNestedManyWithoutPostInput
+    saves?: SaveUncheckedCreateNestedManyWithoutPostInput
   }
 
   export type PostCreateOrConnectWithoutAuthorInput = {
@@ -7063,6 +8556,28 @@ export namespace Prisma {
 
   export type LikeCreateManyUserInputEnvelope = {
     data: LikeCreateManyUserInput | LikeCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type SaveCreateWithoutUserInput = {
+    id?: string
+    createdAt?: Date | string
+    post: PostCreateNestedOneWithoutSavesInput
+  }
+
+  export type SaveUncheckedCreateWithoutUserInput = {
+    id?: string
+    postId: string
+    createdAt?: Date | string
+  }
+
+  export type SaveCreateOrConnectWithoutUserInput = {
+    where: SaveWhereUniqueInput
+    create: XOR<SaveCreateWithoutUserInput, SaveUncheckedCreateWithoutUserInput>
+  }
+
+  export type SaveCreateManyUserInputEnvelope = {
+    data: SaveCreateManyUserInput | SaveCreateManyUserInput[]
     skipDuplicates?: boolean
   }
 
@@ -7148,6 +8663,32 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Like"> | Date | string
   }
 
+  export type SaveUpsertWithWhereUniqueWithoutUserInput = {
+    where: SaveWhereUniqueInput
+    update: XOR<SaveUpdateWithoutUserInput, SaveUncheckedUpdateWithoutUserInput>
+    create: XOR<SaveCreateWithoutUserInput, SaveUncheckedCreateWithoutUserInput>
+  }
+
+  export type SaveUpdateWithWhereUniqueWithoutUserInput = {
+    where: SaveWhereUniqueInput
+    data: XOR<SaveUpdateWithoutUserInput, SaveUncheckedUpdateWithoutUserInput>
+  }
+
+  export type SaveUpdateManyWithWhereWithoutUserInput = {
+    where: SaveScalarWhereInput
+    data: XOR<SaveUpdateManyMutationInput, SaveUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type SaveScalarWhereInput = {
+    AND?: SaveScalarWhereInput | SaveScalarWhereInput[]
+    OR?: SaveScalarWhereInput[]
+    NOT?: SaveScalarWhereInput | SaveScalarWhereInput[]
+    id?: StringFilter<"Save"> | string
+    postId?: StringFilter<"Save"> | string
+    userId?: StringFilter<"Save"> | string
+    createdAt?: DateTimeFilter<"Save"> | Date | string
+  }
+
   export type UserCreateWithoutPostsInput = {
     id?: string
     email: string
@@ -7160,6 +8701,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     comments?: CommentCreateNestedManyWithoutAuthorInput
     likes?: LikeCreateNestedManyWithoutUserInput
+    saves?: SaveCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutPostsInput = {
@@ -7174,6 +8716,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     comments?: CommentUncheckedCreateNestedManyWithoutAuthorInput
     likes?: LikeUncheckedCreateNestedManyWithoutUserInput
+    saves?: SaveUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutPostsInput = {
@@ -7229,6 +8772,28 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type SaveCreateWithoutPostInput = {
+    id?: string
+    createdAt?: Date | string
+    user: UserCreateNestedOneWithoutSavesInput
+  }
+
+  export type SaveUncheckedCreateWithoutPostInput = {
+    id?: string
+    userId: string
+    createdAt?: Date | string
+  }
+
+  export type SaveCreateOrConnectWithoutPostInput = {
+    where: SaveWhereUniqueInput
+    create: XOR<SaveCreateWithoutPostInput, SaveUncheckedCreateWithoutPostInput>
+  }
+
+  export type SaveCreateManyPostInputEnvelope = {
+    data: SaveCreateManyPostInput | SaveCreateManyPostInput[]
+    skipDuplicates?: boolean
+  }
+
   export type UserUpsertWithoutPostsInput = {
     update: XOR<UserUpdateWithoutPostsInput, UserUncheckedUpdateWithoutPostsInput>
     create: XOR<UserCreateWithoutPostsInput, UserUncheckedCreateWithoutPostsInput>
@@ -7252,6 +8817,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     comments?: CommentUpdateManyWithoutAuthorNestedInput
     likes?: LikeUpdateManyWithoutUserNestedInput
+    saves?: SaveUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutPostsInput = {
@@ -7266,6 +8832,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     comments?: CommentUncheckedUpdateManyWithoutAuthorNestedInput
     likes?: LikeUncheckedUpdateManyWithoutUserNestedInput
+    saves?: SaveUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type CommentUpsertWithWhereUniqueWithoutPostInput = {
@@ -7300,6 +8867,22 @@ export namespace Prisma {
     data: XOR<LikeUpdateManyMutationInput, LikeUncheckedUpdateManyWithoutPostInput>
   }
 
+  export type SaveUpsertWithWhereUniqueWithoutPostInput = {
+    where: SaveWhereUniqueInput
+    update: XOR<SaveUpdateWithoutPostInput, SaveUncheckedUpdateWithoutPostInput>
+    create: XOR<SaveCreateWithoutPostInput, SaveUncheckedCreateWithoutPostInput>
+  }
+
+  export type SaveUpdateWithWhereUniqueWithoutPostInput = {
+    where: SaveWhereUniqueInput
+    data: XOR<SaveUpdateWithoutPostInput, SaveUncheckedUpdateWithoutPostInput>
+  }
+
+  export type SaveUpdateManyWithWhereWithoutPostInput = {
+    where: SaveScalarWhereInput
+    data: XOR<SaveUpdateManyMutationInput, SaveUncheckedUpdateManyWithoutPostInput>
+  }
+
   export type PostCreateWithoutCommentsInput = {
     id?: string
     content: string
@@ -7308,6 +8891,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     author: UserCreateNestedOneWithoutPostsInput
     likes?: LikeCreateNestedManyWithoutPostInput
+    saves?: SaveCreateNestedManyWithoutPostInput
   }
 
   export type PostUncheckedCreateWithoutCommentsInput = {
@@ -7318,6 +8902,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     likes?: LikeUncheckedCreateNestedManyWithoutPostInput
+    saves?: SaveUncheckedCreateNestedManyWithoutPostInput
   }
 
   export type PostCreateOrConnectWithoutCommentsInput = {
@@ -7337,6 +8922,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     posts?: PostCreateNestedManyWithoutAuthorInput
     likes?: LikeCreateNestedManyWithoutUserInput
+    saves?: SaveCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutCommentsInput = {
@@ -7351,6 +8937,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     posts?: PostUncheckedCreateNestedManyWithoutAuthorInput
     likes?: LikeUncheckedCreateNestedManyWithoutUserInput
+    saves?: SaveUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutCommentsInput = {
@@ -7377,6 +8964,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     author?: UserUpdateOneRequiredWithoutPostsNestedInput
     likes?: LikeUpdateManyWithoutPostNestedInput
+    saves?: SaveUpdateManyWithoutPostNestedInput
   }
 
   export type PostUncheckedUpdateWithoutCommentsInput = {
@@ -7387,6 +8975,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     likes?: LikeUncheckedUpdateManyWithoutPostNestedInput
+    saves?: SaveUncheckedUpdateManyWithoutPostNestedInput
   }
 
   export type UserUpsertWithoutCommentsInput = {
@@ -7412,6 +9001,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     posts?: PostUpdateManyWithoutAuthorNestedInput
     likes?: LikeUpdateManyWithoutUserNestedInput
+    saves?: SaveUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutCommentsInput = {
@@ -7426,6 +9016,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     posts?: PostUncheckedUpdateManyWithoutAuthorNestedInput
     likes?: LikeUncheckedUpdateManyWithoutUserNestedInput
+    saves?: SaveUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type PostCreateWithoutLikesInput = {
@@ -7436,6 +9027,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     author: UserCreateNestedOneWithoutPostsInput
     comments?: CommentCreateNestedManyWithoutPostInput
+    saves?: SaveCreateNestedManyWithoutPostInput
   }
 
   export type PostUncheckedCreateWithoutLikesInput = {
@@ -7446,6 +9038,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     comments?: CommentUncheckedCreateNestedManyWithoutPostInput
+    saves?: SaveUncheckedCreateNestedManyWithoutPostInput
   }
 
   export type PostCreateOrConnectWithoutLikesInput = {
@@ -7465,6 +9058,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     posts?: PostCreateNestedManyWithoutAuthorInput
     comments?: CommentCreateNestedManyWithoutAuthorInput
+    saves?: SaveCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutLikesInput = {
@@ -7479,6 +9073,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     posts?: PostUncheckedCreateNestedManyWithoutAuthorInput
     comments?: CommentUncheckedCreateNestedManyWithoutAuthorInput
+    saves?: SaveUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutLikesInput = {
@@ -7505,6 +9100,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     author?: UserUpdateOneRequiredWithoutPostsNestedInput
     comments?: CommentUpdateManyWithoutPostNestedInput
+    saves?: SaveUpdateManyWithoutPostNestedInput
   }
 
   export type PostUncheckedUpdateWithoutLikesInput = {
@@ -7515,6 +9111,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     comments?: CommentUncheckedUpdateManyWithoutPostNestedInput
+    saves?: SaveUncheckedUpdateManyWithoutPostNestedInput
   }
 
   export type UserUpsertWithoutLikesInput = {
@@ -7540,6 +9137,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     posts?: PostUpdateManyWithoutAuthorNestedInput
     comments?: CommentUpdateManyWithoutAuthorNestedInput
+    saves?: SaveUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutLikesInput = {
@@ -7554,6 +9152,143 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     posts?: PostUncheckedUpdateManyWithoutAuthorNestedInput
     comments?: CommentUncheckedUpdateManyWithoutAuthorNestedInput
+    saves?: SaveUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type PostCreateWithoutSavesInput = {
+    id?: string
+    content: string
+    imageUrl?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    author: UserCreateNestedOneWithoutPostsInput
+    comments?: CommentCreateNestedManyWithoutPostInput
+    likes?: LikeCreateNestedManyWithoutPostInput
+  }
+
+  export type PostUncheckedCreateWithoutSavesInput = {
+    id?: string
+    authorId: string
+    content: string
+    imageUrl?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    comments?: CommentUncheckedCreateNestedManyWithoutPostInput
+    likes?: LikeUncheckedCreateNestedManyWithoutPostInput
+  }
+
+  export type PostCreateOrConnectWithoutSavesInput = {
+    where: PostWhereUniqueInput
+    create: XOR<PostCreateWithoutSavesInput, PostUncheckedCreateWithoutSavesInput>
+  }
+
+  export type UserCreateWithoutSavesInput = {
+    id?: string
+    email: string
+    username: string
+    name: string
+    bio?: string | null
+    avatarUrl?: string | null
+    password: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    posts?: PostCreateNestedManyWithoutAuthorInput
+    comments?: CommentCreateNestedManyWithoutAuthorInput
+    likes?: LikeCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutSavesInput = {
+    id?: string
+    email: string
+    username: string
+    name: string
+    bio?: string | null
+    avatarUrl?: string | null
+    password: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    posts?: PostUncheckedCreateNestedManyWithoutAuthorInput
+    comments?: CommentUncheckedCreateNestedManyWithoutAuthorInput
+    likes?: LikeUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutSavesInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutSavesInput, UserUncheckedCreateWithoutSavesInput>
+  }
+
+  export type PostUpsertWithoutSavesInput = {
+    update: XOR<PostUpdateWithoutSavesInput, PostUncheckedUpdateWithoutSavesInput>
+    create: XOR<PostCreateWithoutSavesInput, PostUncheckedCreateWithoutSavesInput>
+    where?: PostWhereInput
+  }
+
+  export type PostUpdateToOneWithWhereWithoutSavesInput = {
+    where?: PostWhereInput
+    data: XOR<PostUpdateWithoutSavesInput, PostUncheckedUpdateWithoutSavesInput>
+  }
+
+  export type PostUpdateWithoutSavesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    content?: StringFieldUpdateOperationsInput | string
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    author?: UserUpdateOneRequiredWithoutPostsNestedInput
+    comments?: CommentUpdateManyWithoutPostNestedInput
+    likes?: LikeUpdateManyWithoutPostNestedInput
+  }
+
+  export type PostUncheckedUpdateWithoutSavesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    authorId?: StringFieldUpdateOperationsInput | string
+    content?: StringFieldUpdateOperationsInput | string
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    comments?: CommentUncheckedUpdateManyWithoutPostNestedInput
+    likes?: LikeUncheckedUpdateManyWithoutPostNestedInput
+  }
+
+  export type UserUpsertWithoutSavesInput = {
+    update: XOR<UserUpdateWithoutSavesInput, UserUncheckedUpdateWithoutSavesInput>
+    create: XOR<UserCreateWithoutSavesInput, UserUncheckedCreateWithoutSavesInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutSavesInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutSavesInput, UserUncheckedUpdateWithoutSavesInput>
+  }
+
+  export type UserUpdateWithoutSavesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    username?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    bio?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    posts?: PostUpdateManyWithoutAuthorNestedInput
+    comments?: CommentUpdateManyWithoutAuthorNestedInput
+    likes?: LikeUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutSavesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    username?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    bio?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    posts?: PostUncheckedUpdateManyWithoutAuthorNestedInput
+    comments?: CommentUncheckedUpdateManyWithoutAuthorNestedInput
+    likes?: LikeUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type PostCreateManyAuthorInput = {
@@ -7578,6 +9313,12 @@ export namespace Prisma {
     createdAt?: Date | string
   }
 
+  export type SaveCreateManyUserInput = {
+    id?: string
+    postId: string
+    createdAt?: Date | string
+  }
+
   export type PostUpdateWithoutAuthorInput = {
     id?: StringFieldUpdateOperationsInput | string
     content?: StringFieldUpdateOperationsInput | string
@@ -7586,6 +9327,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     comments?: CommentUpdateManyWithoutPostNestedInput
     likes?: LikeUpdateManyWithoutPostNestedInput
+    saves?: SaveUpdateManyWithoutPostNestedInput
   }
 
   export type PostUncheckedUpdateWithoutAuthorInput = {
@@ -7596,6 +9338,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     comments?: CommentUncheckedUpdateManyWithoutPostNestedInput
     likes?: LikeUncheckedUpdateManyWithoutPostNestedInput
+    saves?: SaveUncheckedUpdateManyWithoutPostNestedInput
   }
 
   export type PostUncheckedUpdateManyWithoutAuthorInput = {
@@ -7648,6 +9391,24 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type SaveUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    post?: PostUpdateOneRequiredWithoutSavesNestedInput
+  }
+
+  export type SaveUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    postId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SaveUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    postId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type CommentCreateManyPostInput = {
     id?: string
     authorId: string
@@ -7657,6 +9418,12 @@ export namespace Prisma {
   }
 
   export type LikeCreateManyPostInput = {
+    id?: string
+    userId: string
+    createdAt?: Date | string
+  }
+
+  export type SaveCreateManyPostInput = {
     id?: string
     userId: string
     createdAt?: Date | string
@@ -7699,6 +9466,24 @@ export namespace Prisma {
   }
 
   export type LikeUncheckedUpdateManyWithoutPostInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SaveUpdateWithoutPostInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutSavesNestedInput
+  }
+
+  export type SaveUncheckedUpdateWithoutPostInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SaveUncheckedUpdateManyWithoutPostInput = {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string

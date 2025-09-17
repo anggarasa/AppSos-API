@@ -342,3 +342,69 @@ export const validateUUIDs = (req: Request, res: Response, next: NextFunction): 
 
   next();
 };
+
+// validation middleware create like
+export const validateCreateSave = (req: Request, res: Response, next: NextFunction): void => {
+  const { userId, postId } = req.body;
+
+  // Check if required fields are present
+  if (!userId || !postId) {
+      res.status(400).json({
+          status: 400,
+          message: "userId and postId are required",
+          data: {}
+      });
+  }
+
+  // Check if they are valid strings (you might want to add UUID validation)
+  if (typeof userId !== 'string' || typeof postId !== 'string') {
+      res.status(400).json({
+          status: 400,
+          message: "userId and postId must be valid strings",
+          data: {}
+      });
+  }
+
+  // Check if they are not empty strings
+  if (userId.trim() === '' || postId.trim() === '') {
+      res.status(400).json({
+          status: 400,
+          message: "userId and postId cannot be empty",
+          data: {}
+      });
+  }
+
+  next();
+};
+
+// validation middleware unlike
+export const validateUnSavePost = (req: Request, res: Response, next: NextFunction): void => {
+  const { userId, postId } = req.body;
+
+  // Same validation as createLike
+  if (!userId || !postId) {
+      res.status(400).json({
+          status: 400,
+          message: "userId and postId are required",
+          data: {}
+      });
+  }
+
+  if (typeof userId !== 'string' || typeof postId !== 'string') {
+      res.status(400).json({
+          status: 400,
+          message: "userId and postId must be valid strings",
+          data: {}
+      });
+  }
+
+  if (userId.trim() === '' || postId.trim() === '') {
+      res.status(400).json({
+          status: 400,
+          message: "userId and postId cannot be empty",
+          data: {}
+      });
+  }
+
+  next();
+};
