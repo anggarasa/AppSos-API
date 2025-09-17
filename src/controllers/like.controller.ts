@@ -1,5 +1,12 @@
+// controller file - FIXED VERSION
 import { Request, Response } from "express";
-import { deleteLikeById, insertLike } from "../services/like.service";
+import { 
+    deleteLikeById, 
+    insertLike,
+    deleteLikeByUserAndPost,
+    getLikeCount,
+    hasUserLikedPost
+} from "../services/like.service";
 
 export const createLike = async (req: Request, res: Response) => {
     const { userId, postId } = req.body;
@@ -12,25 +19,20 @@ export const createLike = async (req: Request, res: Response) => {
             data: result
         });
     } catch (error: any) {
-        if (error.message === 'User not found') {
+        if (error.message === 'User not found' || error.message === 'Post not found') {
             return res.status(404).json({
                 status: 404,
                 message: error.message,
                 data: {}
             });
-        } else if (error.message === 'Post not found') {
-            return res.status(404).json({
-                status: 404,
-                message: error.message,
-                data: {}
-            });
-        } else if (error.message === "User or Post already exists") {
+        } else if (error.message === 'User already liked this post') {
             return res.status(409).json({
                 status: 409,
                 message: error.message,
                 data: {}
-            })
+            });
         } else {
+            console.error('Error creating like:', error);
             return res.status(500).json({
                 status: 500,
                 message: "Internal server error",
@@ -51,12 +53,82 @@ export const deleteLike = async (req: Request, res: Response) => {
             return res.status(404).json({
                 status: 404,
                 message: error.message,
+                data: {}
             });
         } else {
+            console.error('Error deleting like:', error);
             return res.status(500).json({
                 status: 500,
-                message: "Internal server error"
-            })
+                message: "Internal server error",
+                data: {}
+            });
         }
+    }
+}
+
+// New controller for unlike by user and post
+export const unlikePost = async (req: Request, res: Response) => {
+    const { userId, postId } = req.body;
+
+    try {
+        const result = await deleteLikeByUserAndPost(userId, postId);
+        return res.status(200).json(result);
+    } catch (error: any) {
+        if (error.message === 'Like not found') {
+            return res.status(404).json({
+                status: 404,
+                message: error.message,
+                data: {}
+            });
+        } else {
+            console.error('Error unliking post:', error);
+            return res.status(500).json({
+                status: 500,
+                message: "Internal server error",
+                data: {}
+            });
+        }
+    }
+}
+
+// Get like count for a post
+export const getPostLikeCount = async (req: Request, res: Response) => {
+    const postId: string = req.params.postId;
+
+    try {
+        const count = await getLikeCount(postId);
+        return res.status(200).json({
+            status: 200,
+            message: "Like count retrieved successfully",
+            data: { likeCount: count }
+        });
+    } catch (error: any) {
+        console.error('Error getting like count:', error);
+        return res.status(500).json({
+            status: 500,
+            message: "Internal server error",
+            data: {}
+        });
+    }
+}
+
+// Check if user has liked a post
+export const checkUserLike = async (req: Request, res: Response) => {
+    const { userId, postId } = req.params;
+
+    try {
+        const hasLiked = await hasUserLikedPost(userId, postId);
+        return res.status(200).json({
+            status: 200,
+            message: "User like status retrieved successfully",
+            data: { hasLiked }
+        });
+    } catch (error: any) {
+        console.error('Error checking user like:', error);
+        return res.status(500).json({
+            status: 500,
+            message: "Internal server error",
+            data: {}
+        });
     }
 }

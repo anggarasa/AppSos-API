@@ -248,42 +248,96 @@ export const validateCreateComment = (req: Request, res: Response, next: NextFun
   next();
 };
 
-// validation middleware for create like
+// validation middleware create like
 export const validateCreateLike = (req: Request, res: Response, next: NextFunction): void => {
   const { userId, postId } = req.body;
 
-  // Check required fields
-  if (!userId) {
-    res.status(400).json({
-      status: 400,
-      message: "User ID is required"
-    });
-    return;
+  // Check if required fields are present
+  if (!userId || !postId) {
+      res.status(400).json({
+          status: 400,
+          message: "userId and postId are required",
+          data: {}
+      });
   }
 
-  if (!postId) {
-    res.status(400).json({
-      status: 400,
-      message: "User ID is required"
-    });
-    return;
+  // Check if they are valid strings (you might want to add UUID validation)
+  if (typeof userId !== 'string' || typeof postId !== 'string') {
+      res.status(400).json({
+          status: 400,
+          message: "userId and postId must be valid strings",
+          data: {}
+      });
   }
 
-  // Validate userId format (should be UUID)
+  // Check if they are not empty strings
+  if (userId.trim() === '' || postId.trim() === '') {
+      res.status(400).json({
+          status: 400,
+          message: "userId and postId cannot be empty",
+          data: {}
+      });
+  }
+
+  next();
+};
+
+// validation middleware unlike
+export const validateUnlikePost = (req: Request, res: Response, next: NextFunction): void => {
+  const { userId, postId } = req.body;
+
+  // Same validation as createLike
+  if (!userId || !postId) {
+      res.status(400).json({
+          status: 400,
+          message: "userId and postId are required",
+          data: {}
+      });
+  }
+
+  if (typeof userId !== 'string' || typeof postId !== 'string') {
+      res.status(400).json({
+          status: 400,
+          message: "userId and postId must be valid strings",
+          data: {}
+      });
+  }
+
+  if (userId.trim() === '' || postId.trim() === '') {
+      res.status(400).json({
+          status: 400,
+          message: "userId and postId cannot be empty",
+          data: {}
+      });
+  }
+
+  next();
+};
+
+// Optional: UUID validation if you're using UUIDs
+export const isValidUUID = (uuid: string): boolean => {
   const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-  if (!uuidRegex.test(userId)) {
-    res.status(400).json({
-      status: 400,
-      message: "Invalid user ID format"
-    });
-    return;
+  return uuidRegex.test(uuid);
+};
+
+// validation middleware uuid
+export const validateUUIDs = (req: Request, res: Response, next: NextFunction): void => {
+  const { userId, postId } = req.body;
+
+  if (userId && !isValidUUID(userId)) {
+      res.status(400).json({
+          status: 400,
+          message: "Invalid userId format",
+          data: {}
+      });
   }
-  if (!uuidRegex.test(postId)) {
-    res.status(400).json({
-      status: 400,
-      message: "Invalid user ID format"
-    });
-    return;
+
+  if (postId && !isValidUUID(postId)) {
+      res.status(400).json({
+          status: 400,
+          message: "Invalid postId format",
+          data: {}
+      });
   }
 
   next();
