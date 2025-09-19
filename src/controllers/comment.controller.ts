@@ -1,5 +1,5 @@
 import { Request, Response } from "express"
-import { deleteCommentById, insertComment } from "../services/comment.service";
+import { deleteCommentById, insertComment, findCommentsByPostId, findCommentsByUserId, updateCommentById, findCommentById } from "../services/comment.service";
 
 // create comment
 export const createComment = async (req: Request, res: Response) => {
@@ -22,6 +22,107 @@ export const createComment = async (req: Request, res: Response) => {
         } else if (error.message === 'Post not found') {
             return res.status(404).json({
                 status: 404,
+                message: error.message,
+                data: {}
+            });
+        } else {
+            return res.status(500).json({
+                status: 500,
+                message: "Internal server error",
+                data: {}
+            });
+        }
+    }
+}
+
+// get comments by post
+export const getCommentsByPost = async (req: Request, res: Response) => {
+    const postId: string = req.params.postId;
+
+    try {
+        const comments = await findCommentsByPostId(postId);
+        return res.status(200).json({
+            status: 200,
+            message: "Comments retrieved successfully",
+            data: comments
+        });
+    } catch (error) {
+        return res.status(500).json({
+            status: 500,
+            message: "Internal server error",
+            data: []
+        });
+    }
+}
+
+// get comments by user
+export const getCommentsByUser = async (req: Request, res: Response) => {
+    const userId: string = req.params.userId;
+
+    try {
+        const comments = await findCommentsByUserId(userId);
+        return res.status(200).json({
+            status: 200,
+            message: "User comments retrieved successfully",
+            data: comments
+        });
+    } catch (error) {
+        return res.status(500).json({
+            status: 500,
+            message: "Internal server error",
+            data: []
+        });
+    }
+}
+
+// get comment by id
+export const getComment = async (req: Request, res: Response) => {
+    const id: string = req.params.id;
+
+    try {
+        const comment = await findCommentById(id);
+        if (!comment) {
+            return res.status(404).json({
+                status: 404,
+                message: "Comment not found"
+            });
+        }
+        return res.status(200).json({
+            status: 200,
+            message: "Comment retrieved successfully",
+            data: comment
+        });
+    } catch (error) {
+        return res.status(500).json({
+            status: 500,
+            message: "Internal server error",
+            data: {}
+        });
+    }
+}
+
+// update comment
+export const updateComment = async (req: Request, res: Response) => {
+    const id: string = req.params.id;
+    const { userId, content } = req.body;
+
+    try {
+        const result = await updateCommentById(id, userId, content);
+        return res.status(200).json({
+            status: 200,
+            message: "Comment updated successfully",
+            data: result
+        });
+    } catch (error: any) {
+        if (error.message === 'Comment not found') {
+            return res.status(404).json({
+                status: 404,
+                message: error.message,
+                data: {}
+            });
+        } else if (error.message === 'Unauthorized to update this comment') {
+            return res.status(403).json({
+                status: 403,
                 message: error.message,
                 data: {}
             });

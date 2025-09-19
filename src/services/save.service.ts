@@ -29,6 +29,100 @@ export const insertSave = async (userId: string, postId: string) => {
     }
 }
 
+// get saved posts by user
+export const findSavedPostsByUserId = (userId: string) =>
+  prisma.save.findMany({
+    where: { userId },
+    select: {
+      id: true,
+      createdAt: true,
+      post: {
+        select: {
+          id: true,
+          authorId: true,
+          content: true,
+          imageUrl: true,
+          createdAt: true,
+          author: {
+            select: {
+              id: true,
+              username: true,
+              avatarUrl: true,
+            },
+          },
+          _count: {
+            select: {
+              comments: true,
+              likes: true,
+              saves: true,
+            },
+          },
+        },
+      },
+    },
+    orderBy: { createdAt: 'desc' },
+  });
+
+// check if user has saved a post
+export const hasUserSavedPost = async (userId: string, postId: string): Promise<boolean> => {
+  try {
+    const save = await prisma.save.findFirst({
+      where: {
+        userId,
+        postId,
+      },
+    });
+    return !!save;
+  } catch (error) {
+    throw error;
+  }
+};
+
+// get save count for a post
+export const getSaveCount = async (postId: string): Promise<number> => {
+  try {
+    const count = await prisma.save.count({
+      where: { postId },
+    });
+    return count;
+  } catch (error) {
+    throw error;
+  }
+};
+
+// get save by id
+export const findSaveById = (id: string) =>
+  prisma.save.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      userId: true,
+      postId: true,
+      createdAt: true,
+      user: {
+        select: {
+          id: true,
+          username: true,
+          avatarUrl: true,
+        },
+      },
+      post: {
+        select: {
+          id: true,
+          content: true,
+          imageUrl: true,
+          author: {
+            select: {
+              id: true,
+              username: true,
+              avatarUrl: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
 export const deleteSaveByUserIdAndPostId = async (userId: string, postId: string) => {
     try {
         const existingSave = await prisma.save.findFirst({

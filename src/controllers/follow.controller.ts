@@ -4,7 +4,11 @@ import {
     unfollowUser, 
     getFollowers, 
     getFollowing, 
-    getFollowStats 
+    getFollowStats,
+    isUserFollowing,
+    getMutualFollows,
+    findFollowById,
+    getFollowSuggestions
 } from "../services/follow.service";
 
 export const follow = async (req: Request, res: Response) => {
@@ -149,6 +153,101 @@ export const getFollowStatistics = async (req: Request, res: Response) => {
                 status: 500,
                 message: "Internal server error",
                 data: {}
+            });
+        }
+    }
+};
+
+// check if user is following another user
+export const checkFollowStatus = async (req: Request, res: Response) => {
+    const { followerId, followingId } = req.params;
+
+    try {
+        const isFollowing = await isUserFollowing(followerId, followingId);
+        return res.status(200).json({
+            status: 200,
+            message: "Follow status retrieved successfully",
+            data: { isFollowing }
+        });
+    } catch (error) {
+        return res.status(500).json({
+            status: 500,
+            message: "Internal server error",
+            data: {}
+        });
+    }
+};
+
+// get mutual follows between two users
+export const getMutualFollowsList = async (req: Request, res: Response) => {
+    const { userId1, userId2 } = req.params;
+
+    try {
+        const mutualFollows = await getMutualFollows(userId1, userId2);
+        return res.status(200).json({
+            status: 200,
+            message: "Mutual follows retrieved successfully",
+            data: mutualFollows
+        });
+    } catch (error) {
+        return res.status(500).json({
+            status: 500,
+            message: "Internal server error",
+            data: []
+        });
+    }
+};
+
+// get follow by id
+export const getFollow = async (req: Request, res: Response) => {
+    const id: string = req.params.id;
+
+    try {
+        const follow = await findFollowById(id);
+        if (!follow) {
+            return res.status(404).json({
+                status: 404,
+                message: "Follow relationship not found"
+            });
+        }
+        return res.status(200).json({
+            status: 200,
+            message: "Follow relationship retrieved successfully",
+            data: follow
+        });
+    } catch (error) {
+        return res.status(500).json({
+            status: 500,
+            message: "Internal server error",
+            data: {}
+        });
+    }
+};
+
+// get follow suggestions
+export const getFollowSuggestionsList = async (req: Request, res: Response) => {
+    const userId: string = req.params.userId;
+    const limit: number = parseInt(req.query.limit as string) || 10;
+
+    try {
+        const suggestions = await getFollowSuggestions(userId, limit);
+        return res.status(200).json({
+            status: 200,
+            message: "Follow suggestions retrieved successfully",
+            data: suggestions
+        });
+    } catch (error: any) {
+        if (error.message === 'User not found') {
+            return res.status(404).json({
+                status: 404,
+                message: error.message,
+                data: {}
+            });
+        } else {
+            return res.status(500).json({
+                status: 500,
+                message: "Internal server error",
+                data: []
             });
         }
     }

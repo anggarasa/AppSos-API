@@ -149,6 +149,192 @@ export const updateUserById = async (
   }
 };
 
+// get user profile with stats
+export const findUserProfileWithStats = (id: string) =>
+  prisma.user.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      name: true,
+      username: true,
+      email: true,
+      bio: true,
+      avatarUrl: true,
+      createdAt: true,
+      updatedAt: true,
+      _count: {
+        select: {
+          posts: true,
+          followers: true,
+          following: true,
+          comments: true,
+          likes: true,
+          saves: true,
+        },
+      },
+    },
+  });
+
+// get user by username
+export const findUserByUsername = (username: string) =>
+  prisma.user.findUnique({
+    where: { username },
+    select: {
+      id: true,
+      name: true,
+      username: true,
+      email: true,
+      bio: true,
+      avatarUrl: true,
+      createdAt: true,
+      updatedAt: true,
+      _count: {
+        select: {
+          posts: true,
+          followers: true,
+          following: true,
+        },
+      },
+    },
+  });
+
+// search users by username or name
+export const searchUsers = (query: string, limit: number = 10) =>
+  prisma.user.findMany({
+    where: {
+      OR: [
+        { username: { contains: query, mode: 'insensitive' } },
+        { name: { contains: query, mode: 'insensitive' } },
+      ],
+    },
+    select: {
+      id: true,
+      name: true,
+      username: true,
+      avatarUrl: true,
+      bio: true,
+      _count: {
+        select: {
+          posts: true,
+          followers: true,
+          following: true,
+        },
+      },
+    },
+    take: limit,
+    orderBy: { createdAt: 'desc' },
+  });
+
+// get user posts count
+export const getUserPostsCount = async (userId: string): Promise<number> => {
+  try {
+    const count = await prisma.post.count({
+      where: { authorId: userId },
+    });
+    return count;
+  } catch (error) {
+    throw error;
+  }
+};
+
+// get user followers count
+export const getUserFollowersCount = async (userId: string): Promise<number> => {
+  try {
+    const count = await prisma.follow.count({
+      where: { followingId: userId },
+    });
+    return count;
+  } catch (error) {
+    throw error;
+  }
+};
+
+// get user following count
+export const getUserFollowingCount = async (userId: string): Promise<number> => {
+  try {
+    const count = await prisma.follow.count({
+      where: { followerId: userId },
+    });
+    return count;
+  } catch (error) {
+    throw error;
+  }
+};
+
+// get user activity (recent posts, comments, likes)
+export const getUserActivity = async (userId: string, limit: number = 20) => {
+  try {
+    const [recentPosts, recentComments, recentLikes] = await Promise.all([
+      prisma.post.findMany({
+        where: { authorId: userId },
+        select: {
+          id: true,
+          content: true,
+          imageUrl: true,
+          createdAt: true,
+          _count: {
+            select: {
+              comments: true,
+              likes: true,
+              saves: true,
+            },
+          },
+        },
+        orderBy: { createdAt: 'desc' },
+        take: Math.ceil(limit / 3),
+      }),
+      prisma.comment.findMany({
+        where: { authorId: userId },
+        select: {
+          id: true,
+          content: true,
+          createdAt: true,
+          post: {
+            select: {
+              id: true,
+              content: true,
+              imageUrl: true,
+            },
+          },
+        },
+        orderBy: { createdAt: 'desc' },
+        take: Math.ceil(limit / 3),
+      }),
+      prisma.like.findMany({
+        where: { userId: userId },
+        select: {
+          id: true,
+          createdAt: true,
+          post: {
+            select: {
+              id: true,
+              content: true,
+              imageUrl: true,
+              author: {
+                select: {
+                  id: true,
+                  username: true,
+                  avatarUrl: true,
+                },
+              },
+            },
+          },
+        },
+        orderBy: { createdAt: 'desc' },
+        take: Math.ceil(limit / 3),
+      }),
+    ]);
+
+    return {
+      posts: recentPosts,
+      comments: recentComments,
+      likes: recentLikes,
+    };
+  } catch (error) {
+    throw error;
+  }
+};
+
 // delete user
 export const deleteUserById = async (id: string) => {
   try {

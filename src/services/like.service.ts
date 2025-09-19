@@ -132,3 +132,96 @@ export const hasUserLikedPost = async (userId: string, postId: string) => {
         throw error;
     }
 }
+
+// get liked posts by user
+export const findLikedPostsByUserId = (userId: string) =>
+  prisma.like.findMany({
+    where: { userId },
+    select: {
+      id: true,
+      createdAt: true,
+      post: {
+        select: {
+          id: true,
+          authorId: true,
+          content: true,
+          imageUrl: true,
+          createdAt: true,
+          author: {
+            select: {
+              id: true,
+              username: true,
+              avatarUrl: true,
+            },
+          },
+          _count: {
+            select: {
+              comments: true,
+              likes: true,
+              saves: true,
+            },
+          },
+        },
+      },
+    },
+    orderBy: { createdAt: 'desc' },
+  });
+
+// get likes by user
+export const findLikesByUserId = (userId: string) =>
+  prisma.like.findMany({
+    where: { userId },
+    select: {
+      id: true,
+      postId: true,
+      createdAt: true,
+      post: {
+        select: {
+          id: true,
+          content: true,
+          imageUrl: true,
+          author: {
+            select: {
+              id: true,
+              username: true,
+              avatarUrl: true,
+            },
+          },
+        },
+      },
+    },
+    orderBy: { createdAt: 'desc' },
+  });
+
+// get like by id
+export const findLikeById = (id: string) =>
+  prisma.like.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      userId: true,
+      postId: true,
+      createdAt: true,
+      user: {
+        select: {
+          id: true,
+          username: true,
+          avatarUrl: true,
+        },
+      },
+      post: {
+        select: {
+          id: true,
+          content: true,
+          imageUrl: true,
+          author: {
+            select: {
+              id: true,
+              username: true,
+              avatarUrl: true,
+            },
+          },
+        },
+      },
+    },
+  });

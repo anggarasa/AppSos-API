@@ -6,7 +6,10 @@ import {
     deleteLike,
     unlikePost,
     getPostLikeCount,
-    checkUserLike
+    checkUserLike,
+    getLikedPostsByUser,
+    getLikesByUser,
+    getLike
 } from "../controllers/like.controller";
 import { authenticateToken } from "../middleware/auth";
 
@@ -20,6 +23,15 @@ route.delete('/unlike', authenticateToken, validateUnlikePost, unlikePost);
 
 // Delete like by ID (keep for admin purposes) - requires authentication
 route.delete('/:id', authenticateToken, deleteLike);
+
+// Get liked posts by user
+route.get('/user/:userId/posts', getLikedPostsByUser);
+
+// Get likes by user
+route.get('/user/:userId', getLikesByUser);
+
+// Get like by id
+route.get('/:id', getLike);
 
 // Get like count for a specific post
 route.get('/count/:postId', getPostLikeCount);

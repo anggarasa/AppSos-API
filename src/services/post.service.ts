@@ -134,6 +134,175 @@ export const insertPost = async (
   }
 };
 
+// update post
+export const updatePostById = async (
+  id: string,
+  userId: string,
+  data: {
+    content?: string;
+    imageFile?: Express.Multer.File;
+  }
+) => {
+  try {
+    const existingPost = await prisma.post.findUnique({ 
+      where: { id },
+      select: { authorId: true, imageUrl: true }
+    });
+    
+    if (!existingPost) {
+      throw new Error("Post not found");
+    }
+
+    if (existingPost.authorId !== userId) {
+      throw new Error("Unauthorized to update this post");
+    }
+
+    const updatePayload: any = {};
+
+    if (data.content !== undefined) {
+      updatePayload.content = data.content;
+    }
+
+    // handle image file upload to storage
+    if (data.imageFile) {
+      // Delete old image if exists
+      if (existingPost.imageUrl) {
+        try {
+          const publicUrlPrefix = `/storage/v1/object/public/post_images/`;
+          const idx = existingPost.imageUrl.indexOf(publicUrlPrefix);
+          if (idx !== -1) {
+            const previousPath = existingPost.imageUrl.substring(
+              idx + publicUrlPrefix.length
+            );
+            await supabase.storage.from("post_images").remove([previousPath]);
+          }
+        } catch (error) {
+          console.error("Failed to delete old image from storage:", error);
+        }
+      }
+
+      const bucket = "post_images";
+      const fileExt = (
+        data.imageFile.originalname.split(".").pop() || "jpg"
+      ).toLowerCase();
+      const fileName = `${randomUUID()}.${fileExt}`;
+      const filePath = `${userId}/${fileName}`;
+
+      // upload new post image
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from(bucket)
+        .upload(filePath, data.imageFile.buffer, {
+          contentType: data.imageFile.mimetype,
+          upsert: true,
+        });
+
+      if (uploadError) {
+        throw new Error(`Failed to upload image: ${uploadError.message}`);
+      }
+
+      // Get public URL
+      const { data: publicUrlData } = supabase.storage
+        .from(bucket)
+        .getPublicUrl(filePath);
+
+      updatePayload.imageUrl = publicUrlData.publicUrl;
+    }
+
+    const updatedPost = await prisma.post.update({
+      where: { id },
+      data: updatePayload,
+      select: {
+        id: true,
+        authorId: true,
+        content: true,
+        imageUrl: true,
+        createdAt: true,
+        updatedAt: true,
+        author: {
+          select: {
+            id: true,
+            username: true,
+            avatarUrl: true,
+          },
+        },
+        _count: {
+          select: {
+            comments: true,
+            likes: true,
+            saves: true,
+          },
+        },
+      },
+    });
+
+    return updatedPost;
+  } catch (error: any) {
+    throw error;
+  }
+};
+
+// get posts by user
+export const findPostsByUserId = (userId: string) =>
+  prisma.post.findMany({
+    where: { authorId: userId },
+    select: {
+      id: true,
+      authorId: true,
+      content: true,
+      imageUrl: true,
+      createdAt: true,
+      author: {
+        select: {
+          id: true,
+          username: true,
+          avatarUrl: true,
+        },
+      },
+      _count: {
+        select: {
+          comments: true,
+          likes: true,
+          saves: true,
+        },
+      },
+    },
+    orderBy: { createdAt: 'desc' },
+  });
+
+// get saved posts by user
+export const findSavedPostsByUserId = (userId: string) =>
+  prisma.save.findMany({
+    where: { userId },
+    select: {
+      id: true,
+      createdAt: true,
+      post: {
+        select: {
+          id: true,
+          authorId: true,
+          content: true,
+          imageUrl: true,
+          createdAt: true,
+          author: {
+            select: {
+              id: true,
+              username: true,
+              avatarUrl: true,
+            },
+          },
+          _count: {
+            select: {
+              comments: true,
+              likes: true,
+              saves: true,
+            },
+          },
+        },
+      },
+    },
+    orderBy: { createdAt: 'desc' },
+  });
+
 // delete post
 export const deletePostById = async (id: string) => {
   try {

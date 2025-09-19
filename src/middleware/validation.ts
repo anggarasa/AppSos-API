@@ -181,6 +181,54 @@ export const validateCreatePost = (req: Request, res: Response, next: NextFuncti
   next();
 };
 
+// validation middleware for update post
+export const validateUpdatePost = (req: Request, res: Response, next: NextFunction): void => {
+  const { userId, content } = req.body;
+  const hasImageFile = Boolean((req as any).file);
+
+  // Check if at least one field is provided for update
+  if (!content && !hasImageFile) {
+    res.status(400).json({
+      status: 400,
+      message: "At least one field (content or image) must be provided for update"
+    });
+    return;
+  }
+
+  // Validate userId if provided
+  if (userId) {
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(userId)) {
+      res.status(400).json({
+        status: 400,
+        message: "Invalid user ID format"
+      });
+      return;
+    }
+  }
+
+  // Validate content if provided
+  if (content) {
+    if (content.trim().length < 1) {
+      res.status(400).json({
+        status: 400,
+        message: "Content cannot be empty"
+      });
+      return;
+    }
+
+    if (content.length > 2000) {
+      res.status(400).json({
+        status: 400,
+        message: "Content must be less than 2000 characters"
+      });
+      return;
+    }
+  }
+
+  next();
+};
+
 // validation middleware for create comment
 export const validateCreateComment = (req: Request, res: Response, next: NextFunction): void => {
   const { userId, postId, content } = req.body;
@@ -247,6 +295,58 @@ export const validateCreateComment = (req: Request, res: Response, next: NextFun
 
   next();
 };
+
+// validation middleware for update comment
+export const validateUpdateComment = (req: Request, res: Response, next: NextFunction): void => {
+  const { userId, content } = req.body;
+
+  // Check if required fields are present
+  if (!userId) {
+    res.status(400).json({
+      status: 400,
+      message: "User ID is required"
+    });
+    return;
+  }
+
+  if (!content) {
+    res.status(400).json({
+      status: 400,
+      message: "Content is required"
+    });
+    return;
+  }
+
+  // Validate content length
+  if (content.trim().length < 1) {
+    res.status(400).json({
+      status: 400,
+      message: "Content cannot be empty"
+    });
+    return;
+  }
+
+  if (content.length > 2000) {
+    res.status(400).json({
+      status: 400,
+      message: "Content must be less than 2000 characters"
+    });
+    return;
+  }
+
+  // Validate userId format (should be UUID)
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  if (!uuidRegex.test(userId)) {
+    res.status(400).json({
+      status: 400,
+      message: "Invalid user ID format"
+    });
+    return;
+  }
+
+  next();
+};
+
 
 // validation middleware create like
 export const validateCreateLike = (req: Request, res: Response, next: NextFunction): void => {
@@ -350,6 +450,7 @@ export const validateUUIDs = (req: Request, res: Response, next: NextFunction): 
 
   next();
 };
+
 
 // validation middleware create save
 export const validateCreateSave = (req: Request, res: Response, next: NextFunction): void => {

@@ -5,7 +5,10 @@ import {
     insertLike,
     deleteLikeByUserAndPost,
     getLikeCount,
-    hasUserLikedPost
+    hasUserLikedPost,
+    findLikedPostsByUserId,
+    findLikesByUserId,
+    findLikeById
 } from "../services/like.service";
 
 export const createLike = async (req: Request, res: Response) => {
@@ -125,6 +128,72 @@ export const checkUserLike = async (req: Request, res: Response) => {
         });
     } catch (error: any) {
         console.error('Error checking user like:', error);
+        return res.status(500).json({
+            status: 500,
+            message: "Internal server error",
+            data: {}
+        });
+    }
+}
+
+// get liked posts by user
+export const getLikedPostsByUser = async (req: Request, res: Response) => {
+    const userId: string = req.params.userId;
+
+    try {
+        const likedPosts = await findLikedPostsByUserId(userId);
+        return res.status(200).json({
+            status: 200,
+            message: "Liked posts retrieved successfully",
+            data: likedPosts
+        });
+    } catch (error) {
+        return res.status(500).json({
+            status: 500,
+            message: "Internal server error",
+            data: []
+        });
+    }
+}
+
+// get likes by user
+export const getLikesByUser = async (req: Request, res: Response) => {
+    const userId: string = req.params.userId;
+
+    try {
+        const likes = await findLikesByUserId(userId);
+        return res.status(200).json({
+            status: 200,
+            message: "User likes retrieved successfully",
+            data: likes
+        });
+    } catch (error) {
+        return res.status(500).json({
+            status: 500,
+            message: "Internal server error",
+            data: []
+        });
+    }
+}
+
+// get like by id
+export const getLike = async (req: Request, res: Response) => {
+    const id: string = req.params.id;
+
+    try {
+        const like = await findLikeById(id);
+        if (!like) {
+            return res.status(404).json({
+                status: 404,
+                message: "Like not found"
+            });
+        }
+        return res.status(200).json({
+            status: 200,
+            message: "Like retrieved successfully",
+            data: like
+        });
+    } catch (error) {
         return res.status(500).json({
             status: 500,
             message: "Internal server error",
