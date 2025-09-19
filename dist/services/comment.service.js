@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteCommentById = exports.findCommentById = exports.updateCommentById = exports.findCommentsByUserId = exports.findCommentsByPostId = exports.insertComment = void 0;
 const db_1 = __importDefault(require("../config/db"));
 const notification_service_1 = __importDefault(require("./notification.service"));
+const pagination_1 = require("../utils/pagination");
 const insertComment = async (userId, postId, content) => {
     try {
         const existingPost = await db_1.default.post.findUnique({ where: { id: postId } });
@@ -48,47 +49,17 @@ const insertComment = async (userId, postId, content) => {
     }
 };
 exports.insertComment = insertComment;
-const findCommentsByPostId = (postId) => db_1.default.comment.findMany({
-    where: { postId },
-    select: {
-        id: true,
-        authorId: true,
-        postId: true,
-        content: true,
-        createdAt: true,
-        updatedAt: true,
-        author: {
+const findCommentsByPostId = async (postId, pagination) => {
+    const [comments, total] = await Promise.all([
+        db_1.default.comment.findMany({
+            where: { postId },
             select: {
                 id: true,
-                username: true,
-                avatarUrl: true,
-            },
-        },
-    },
-    orderBy: { createdAt: 'asc' },
-});
-exports.findCommentsByPostId = findCommentsByPostId;
-const findCommentsByUserId = (userId) => db_1.default.comment.findMany({
-    where: { authorId: userId },
-    select: {
-        id: true,
-        authorId: true,
-        postId: true,
-        content: true,
-        createdAt: true,
-        updatedAt: true,
-        author: {
-            select: {
-                id: true,
-                username: true,
-                avatarUrl: true,
-            },
-        },
-        post: {
-            select: {
-                id: true,
+                authorId: true,
+                postId: true,
                 content: true,
-                imageUrl: true,
+                createdAt: true,
+                updatedAt: true,
                 author: {
                     select: {
                         id: true,
@@ -97,10 +68,56 @@ const findCommentsByUserId = (userId) => db_1.default.comment.findMany({
                     },
                 },
             },
-        },
-    },
-    orderBy: { createdAt: 'desc' },
-});
+            skip: pagination.offset,
+            take: pagination.limit,
+            orderBy: { createdAt: 'asc' },
+        }),
+        db_1.default.comment.count({ where: { postId } }),
+    ]);
+    return (0, pagination_1.createPaginationResult)(comments, total, pagination.page, pagination.limit);
+};
+exports.findCommentsByPostId = findCommentsByPostId;
+const findCommentsByUserId = async (userId, pagination) => {
+    const [comments, total] = await Promise.all([
+        db_1.default.comment.findMany({
+            where: { authorId: userId },
+            select: {
+                id: true,
+                authorId: true,
+                postId: true,
+                content: true,
+                createdAt: true,
+                updatedAt: true,
+                author: {
+                    select: {
+                        id: true,
+                        username: true,
+                        avatarUrl: true,
+                    },
+                },
+                post: {
+                    select: {
+                        id: true,
+                        content: true,
+                        imageUrl: true,
+                        author: {
+                            select: {
+                                id: true,
+                                username: true,
+                                avatarUrl: true,
+                            },
+                        },
+                    },
+                },
+            },
+            skip: pagination.offset,
+            take: pagination.limit,
+            orderBy: { createdAt: 'desc' },
+        }),
+        db_1.default.comment.count({ where: { authorId: userId } }),
+    ]);
+    return (0, pagination_1.createPaginationResult)(comments, total, pagination.page, pagination.limit);
+};
 exports.findCommentsByUserId = findCommentsByUserId;
 const updateCommentById = async (id, userId, content) => {
     try {

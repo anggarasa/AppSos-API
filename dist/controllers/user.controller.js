@@ -2,13 +2,16 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteUser = exports.getUserActivityFeed = exports.searchUsersList = exports.getUserByUsername = exports.getUserProfileWithStats = exports.updateUser = exports.findUser = exports.getUsers = void 0;
 const user_service_1 = require("../services/user.service");
-const getUsers = async (_, res) => {
+const pagination_1 = require("../utils/pagination");
+const getUsers = async (req, res) => {
     try {
-        const users = await (0, user_service_1.findAllUsers)();
+        const pagination = (0, pagination_1.parsePaginationParams)(req.query);
+        const result = await (0, user_service_1.findAllUsers)(pagination);
         return res.status(200).json({
             status: 200,
             message: "Success",
-            data: users,
+            data: result.data,
+            pagination: result.pagination
         });
     }
     catch (error) {
@@ -147,7 +150,6 @@ const getUserByUsername = async (req, res) => {
 exports.getUserByUsername = getUserByUsername;
 const searchUsersList = async (req, res) => {
     const query = req.query.q;
-    const limit = parseInt(req.query.limit) || 10;
     if (!query) {
         return res.status(400).json({
             status: 400,
@@ -155,11 +157,13 @@ const searchUsersList = async (req, res) => {
         });
     }
     try {
-        const users = await (0, user_service_1.searchUsers)(query, limit);
+        const pagination = (0, pagination_1.parsePaginationParams)(req.query);
+        const result = await (0, user_service_1.searchUsers)(query, pagination);
         return res.status(200).json({
             status: 200,
             message: "Users found successfully",
-            data: users
+            data: result.data,
+            pagination: result.pagination
         });
     }
     catch (error) {
@@ -173,13 +177,14 @@ const searchUsersList = async (req, res) => {
 exports.searchUsersList = searchUsersList;
 const getUserActivityFeed = async (req, res) => {
     const userId = req.params.userId;
-    const limit = parseInt(req.query.limit) || 20;
     try {
-        const activity = await (0, user_service_1.getUserActivity)(userId, limit);
+        const pagination = (0, pagination_1.parsePaginationParams)(req.query);
+        const result = await (0, user_service_1.getUserActivity)(userId, pagination);
         return res.status(200).json({
             status: 200,
             message: "User activity retrieved successfully",
-            data: activity
+            data: result.data,
+            pagination: result.pagination
         });
     }
     catch (error) {

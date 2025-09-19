@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getFollowSuggestions = exports.findFollowById = exports.getMutualFollows = exports.isUserFollowing = exports.getFollowStats = exports.getFollowing = exports.getFollowers = exports.unfollowUser = exports.followUser = void 0;
 const db_1 = __importDefault(require("../config/db"));
 const notification_service_1 = __importDefault(require("./notification.service"));
+const pagination_1 = require("../utils/pagination");
 const followUser = async (followerId, followingId) => {
     try {
         const follower = await db_1.default.user.findUnique({ where: { id: followerId } });
@@ -89,56 +90,68 @@ const unfollowUser = async (followerId, followingId) => {
     }
 };
 exports.unfollowUser = unfollowUser;
-const getFollowers = async (userId) => {
+const getFollowers = async (userId, pagination) => {
     try {
         const user = await db_1.default.user.findUnique({ where: { id: userId } });
         if (!user) {
             throw new Error('User not found');
         }
-        const followers = await db_1.default.follow.findMany({
-            where: { followingId: userId },
-            include: {
-                follower: {
-                    select: {
-                        id: true,
-                        username: true,
-                        name: true,
-                        avatarUrl: true,
-                        bio: true
+        const [followers, total] = await Promise.all([
+            db_1.default.follow.findMany({
+                where: { followingId: userId },
+                include: {
+                    follower: {
+                        select: {
+                            id: true,
+                            username: true,
+                            name: true,
+                            avatarUrl: true,
+                            bio: true
+                        }
                     }
-                }
-            },
-            orderBy: { createdAt: 'desc' }
-        });
-        return followers.map(follow => follow.follower);
+                },
+                skip: pagination.offset,
+                take: pagination.limit,
+                orderBy: { createdAt: 'desc' }
+            }),
+            db_1.default.follow.count({ where: { followingId: userId } })
+        ]);
+        const followersData = followers.map(follow => follow.follower);
+        return (0, pagination_1.createPaginationResult)(followersData, total, pagination.page, pagination.limit);
     }
     catch (error) {
         throw error;
     }
 };
 exports.getFollowers = getFollowers;
-const getFollowing = async (userId) => {
+const getFollowing = async (userId, pagination) => {
     try {
         const user = await db_1.default.user.findUnique({ where: { id: userId } });
         if (!user) {
             throw new Error('User not found');
         }
-        const following = await db_1.default.follow.findMany({
-            where: { followerId: userId },
-            include: {
-                following: {
-                    select: {
-                        id: true,
-                        username: true,
-                        name: true,
-                        avatarUrl: true,
-                        bio: true
+        const [following, total] = await Promise.all([
+            db_1.default.follow.findMany({
+                where: { followerId: userId },
+                include: {
+                    following: {
+                        select: {
+                            id: true,
+                            username: true,
+                            name: true,
+                            avatarUrl: true,
+                            bio: true
+                        }
                     }
-                }
-            },
-            orderBy: { createdAt: 'desc' }
-        });
-        return following.map(follow => follow.following);
+                },
+                skip: pagination.offset,
+                take: pagination.limit,
+                orderBy: { createdAt: 'desc' }
+            }),
+            db_1.default.follow.count({ where: { followerId: userId } })
+        ]);
+        const followingData = following.map(follow => follow.following);
+        return (0, pagination_1.createPaginationResult)(followingData, total, pagination.page, pagination.limit);
     }
     catch (error) {
         throw error;
@@ -180,7 +193,7 @@ const isUserFollowing = async (followerId, followingId) => {
     }
 };
 exports.isUserFollowing = isUserFollowing;
-const getMutualFollows = async (userId1, userId2) => {
+const getMutualFollows = async (userId1, userId2, pagination) => {
     try {
         const user1Following = await db_1.default.follow.findMany({
             where: { followerId: userId1 },
@@ -194,19 +207,25 @@ const getMutualFollows = async (userId1, userId2) => {
         const user2FollowingIds = user2Following.map(f => f.followingId);
         const mutualIds = user1FollowingIds.filter(id => user2FollowingIds.includes(id));
         if (mutualIds.length === 0) {
-            return [];
+            return (0, pagination_1.createPaginationResult)([], 0, pagination.page, pagination.limit);
         }
-        const mutualUsers = await db_1.default.user.findMany({
-            where: { id: { in: mutualIds } },
-            select: {
-                id: true,
-                username: true,
-                name: true,
-                avatarUrl: true,
-                bio: true
-            }
-        });
-        return mutualUsers;
+        const [mutualUsers, total] = await Promise.all([
+            db_1.default.user.findMany({
+                where: { id: { in: mutualIds } },
+                select: {
+                    id: true,
+                    username: true,
+                    name: true,
+                    avatarUrl: true,
+                    bio: true
+                },
+                skip: pagination.offset,
+                take: pagination.limit,
+                orderBy: { createdAt: 'desc' }
+            }),
+            db_1.default.user.count({ where: { id: { in: mutualIds } } })
+        ]);
+        return (0, pagination_1.createPaginationResult)(mutualUsers, total, pagination.page, pagination.limit);
     }
     catch (error) {
         throw error;
@@ -239,7 +258,7 @@ const findFollowById = (id) => db_1.default.follow.findUnique({
     },
 });
 exports.findFollowById = findFollowById;
-const getFollowSuggestions = async (userId, limit = 10) => {
+const getFollowSuggestions = async (userId, pagination) => {
     try {
         const user = await db_1.default.user.findUnique({ where: { id: userId } });
         if (!user) {
@@ -251,29 +270,37 @@ const getFollowSuggestions = async (userId, limit = 10) => {
         });
         const followingIds = following.map(f => f.followingId);
         followingIds.push(userId);
-        const suggestions = await db_1.default.user.findMany({
-            where: {
-                id: { notIn: followingIds }
-            },
-            select: {
-                id: true,
-                username: true,
-                name: true,
-                avatarUrl: true,
-                bio: true,
-                _count: {
-                    select: {
-                        followers: true,
-                        following: true
+        const [suggestions, total] = await Promise.all([
+            db_1.default.user.findMany({
+                where: {
+                    id: { notIn: followingIds }
+                },
+                select: {
+                    id: true,
+                    username: true,
+                    name: true,
+                    avatarUrl: true,
+                    bio: true,
+                    _count: {
+                        select: {
+                            followers: true,
+                            following: true
+                        }
                     }
+                },
+                skip: pagination.offset,
+                take: pagination.limit,
+                orderBy: {
+                    createdAt: 'desc'
                 }
-            },
-            take: limit,
-            orderBy: {
-                createdAt: 'desc'
-            }
-        });
-        return suggestions;
+            }),
+            db_1.default.user.count({
+                where: {
+                    id: { notIn: followingIds }
+                }
+            })
+        ]);
+        return (0, pagination_1.createPaginationResult)(suggestions, total, pagination.page, pagination.limit);
     }
     catch (error) {
         throw error;

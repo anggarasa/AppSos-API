@@ -7,18 +7,28 @@ exports.deleteUserById = exports.getUserActivity = exports.getUserFollowingCount
 const db_1 = __importDefault(require("../config/db"));
 const supabase_1 = require("../config/supabase");
 const crypto_1 = require("crypto");
-const findAllUsers = () => db_1.default.user.findMany({
-    select: {
-        id: true,
-        name: true,
-        username: true,
-        email: true,
-        bio: true,
-        avatarUrl: true,
-        createdAt: true,
-        updatedAt: true
-    }
-});
+const pagination_1 = require("../utils/pagination");
+const findAllUsers = async (pagination) => {
+    const [users, total] = await Promise.all([
+        db_1.default.user.findMany({
+            select: {
+                id: true,
+                name: true,
+                username: true,
+                email: true,
+                bio: true,
+                avatarUrl: true,
+                createdAt: true,
+                updatedAt: true
+            },
+            skip: pagination.offset,
+            take: pagination.limit,
+            orderBy: { createdAt: 'desc' },
+        }),
+        db_1.default.user.count(),
+    ]);
+    return (0, pagination_1.createPaginationResult)(users, total, pagination.page, pagination.limit);
+};
 exports.findAllUsers = findAllUsers;
 const findUserById = (id) => db_1.default.user.findUnique({
     where: { id },
@@ -164,30 +174,44 @@ const findUserByUsername = (username) => db_1.default.user.findUnique({
     },
 });
 exports.findUserByUsername = findUserByUsername;
-const searchUsers = (query, limit = 10) => db_1.default.user.findMany({
-    where: {
-        OR: [
-            { username: { contains: query, mode: 'insensitive' } },
-            { name: { contains: query, mode: 'insensitive' } },
-        ],
-    },
-    select: {
-        id: true,
-        name: true,
-        username: true,
-        avatarUrl: true,
-        bio: true,
-        _count: {
-            select: {
-                posts: true,
-                followers: true,
-                following: true,
+const searchUsers = async (query, pagination) => {
+    const [users, total] = await Promise.all([
+        db_1.default.user.findMany({
+            where: {
+                OR: [
+                    { username: { contains: query, mode: 'insensitive' } },
+                    { name: { contains: query, mode: 'insensitive' } },
+                ],
             },
-        },
-    },
-    take: limit,
-    orderBy: { createdAt: 'desc' },
-});
+            select: {
+                id: true,
+                name: true,
+                username: true,
+                avatarUrl: true,
+                bio: true,
+                _count: {
+                    select: {
+                        posts: true,
+                        followers: true,
+                        following: true,
+                    },
+                },
+            },
+            skip: pagination.offset,
+            take: pagination.limit,
+            orderBy: { createdAt: 'desc' },
+        }),
+        db_1.default.user.count({
+            where: {
+                OR: [
+                    { username: { contains: query, mode: 'insensitive' } },
+                    { name: { contains: query, mode: 'insensitive' } },
+                ],
+            },
+        }),
+    ]);
+    return (0, pagination_1.createPaginationResult)(users, total, pagination.page, pagination.limit);
+};
 exports.searchUsers = searchUsers;
 const getUserPostsCount = async (userId) => {
     try {
@@ -225,8 +249,9 @@ const getUserFollowingCount = async (userId) => {
     }
 };
 exports.getUserFollowingCount = getUserFollowingCount;
-const getUserActivity = async (userId, limit = 20) => {
+const getUserActivity = async (userId, pagination) => {
     try {
+        const limitPerType = Math.ceil(pagination.limit / 3);
         const [recentPosts, recentComments, recentLikes] = await Promise.all([
             db_1.default.post.findMany({
                 where: { authorId: userId },
@@ -244,7 +269,7 @@ const getUserActivity = async (userId, limit = 20) => {
                     },
                 },
                 orderBy: { createdAt: 'desc' },
-                take: Math.ceil(limit / 3),
+                take: limitPerType,
             }),
             db_1.default.comment.findMany({
                 where: { authorId: userId },
@@ -261,7 +286,7 @@ const getUserActivity = async (userId, limit = 20) => {
                     },
                 },
                 orderBy: { createdAt: 'desc' },
-                take: Math.ceil(limit / 3),
+                take: limitPerType,
             }),
             db_1.default.like.findMany({
                 where: { userId: userId },
@@ -284,14 +309,21 @@ const getUserActivity = async (userId, limit = 20) => {
                     },
                 },
                 orderBy: { createdAt: 'desc' },
-                take: Math.ceil(limit / 3),
+                take: limitPerType,
             }),
         ]);
-        return {
-            posts: recentPosts,
-            comments: recentComments,
-            likes: recentLikes,
-        };
+        const allActivities = [
+            ...recentPosts.map(post => ({ ...post, type: 'post' })),
+            ...recentComments.map(comment => ({ ...comment, type: 'comment' })),
+            ...recentLikes.map(like => ({ ...like, type: 'like' })),
+        ].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        const [postsCount, commentsCount, likesCount] = await Promise.all([
+            db_1.default.post.count({ where: { authorId: userId } }),
+            db_1.default.comment.count({ where: { authorId: userId } }),
+            db_1.default.like.count({ where: { userId } }),
+        ]);
+        const totalActivities = postsCount + commentsCount + likesCount;
+        return (0, pagination_1.createPaginationResult)(allActivities, totalActivities, pagination.page, pagination.limit);
     }
     catch (error) {
         throw error;

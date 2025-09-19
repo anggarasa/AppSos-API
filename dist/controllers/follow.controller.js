@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getFollowSuggestionsList = exports.getFollow = exports.getMutualFollowsList = exports.checkFollowStatus = exports.getFollowStatistics = exports.getFollowingList = exports.getFollowersList = exports.unfollow = exports.follow = void 0;
 const follow_service_1 = require("../services/follow.service");
+const pagination_1 = require("../utils/pagination");
 const follow = async (req, res) => {
     const { followerId, followingId } = req.body;
     try {
@@ -75,11 +76,13 @@ exports.unfollow = unfollow;
 const getFollowersList = async (req, res) => {
     const { userId } = req.params;
     try {
-        const followers = await (0, follow_service_1.getFollowers)(userId);
+        const pagination = (0, pagination_1.parsePaginationParams)(req.query);
+        const result = await (0, follow_service_1.getFollowers)(userId, pagination);
         return res.status(200).json({
             status: 200,
             message: "Followers retrieved successfully",
-            data: followers
+            data: result.data,
+            pagination: result.pagination
         });
     }
     catch (error) {
@@ -103,11 +106,13 @@ exports.getFollowersList = getFollowersList;
 const getFollowingList = async (req, res) => {
     const { userId } = req.params;
     try {
-        const following = await (0, follow_service_1.getFollowing)(userId);
+        const pagination = (0, pagination_1.parsePaginationParams)(req.query);
+        const result = await (0, follow_service_1.getFollowing)(userId, pagination);
         return res.status(200).json({
             status: 200,
             message: "Following list retrieved successfully",
-            data: following
+            data: result.data,
+            pagination: result.pagination
         });
     }
     catch (error) {
@@ -178,11 +183,13 @@ exports.checkFollowStatus = checkFollowStatus;
 const getMutualFollowsList = async (req, res) => {
     const { userId1, userId2 } = req.params;
     try {
-        const mutualFollows = await (0, follow_service_1.getMutualFollows)(userId1, userId2);
+        const pagination = (0, pagination_1.parsePaginationParams)(req.query);
+        const result = await (0, follow_service_1.getMutualFollows)(userId1, userId2, pagination);
         return res.status(200).json({
             status: 200,
             message: "Mutual follows retrieved successfully",
-            data: mutualFollows
+            data: result.data,
+            pagination: result.pagination
         });
     }
     catch (error) {
@@ -221,13 +228,14 @@ const getFollow = async (req, res) => {
 exports.getFollow = getFollow;
 const getFollowSuggestionsList = async (req, res) => {
     const userId = req.params.userId;
-    const limit = parseInt(req.query.limit) || 10;
     try {
-        const suggestions = await (0, follow_service_1.getFollowSuggestions)(userId, limit);
+        const pagination = (0, pagination_1.parsePaginationParams)(req.query);
+        const result = await (0, follow_service_1.getFollowSuggestions)(userId, pagination);
         return res.status(200).json({
             status: 200,
             message: "Follow suggestions retrieved successfully",
-            data: suggestions
+            data: result.data,
+            pagination: result.pagination
         });
     }
     catch (error) {

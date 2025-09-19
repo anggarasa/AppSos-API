@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteComment = exports.updateComment = exports.getComment = exports.getCommentsByUser = exports.getCommentsByPost = exports.createComment = void 0;
 const comment_service_1 = require("../services/comment.service");
+const pagination_1 = require("../utils/pagination");
 const createComment = async (req, res) => {
     const { userId, postId, content } = req.body;
     try {
@@ -40,11 +41,13 @@ exports.createComment = createComment;
 const getCommentsByPost = async (req, res) => {
     const postId = req.params.postId;
     try {
-        const comments = await (0, comment_service_1.findCommentsByPostId)(postId);
+        const pagination = (0, pagination_1.parsePaginationParams)(req.query);
+        const result = await (0, comment_service_1.findCommentsByPostId)(postId, pagination);
         return res.status(200).json({
             status: 200,
             message: "Comments retrieved successfully",
-            data: comments
+            data: result.data,
+            pagination: result.pagination
         });
     }
     catch (error) {
@@ -59,11 +62,13 @@ exports.getCommentsByPost = getCommentsByPost;
 const getCommentsByUser = async (req, res) => {
     const userId = req.params.userId;
     try {
-        const comments = await (0, comment_service_1.findCommentsByUserId)(userId);
+        const pagination = (0, pagination_1.parsePaginationParams)(req.query);
+        const result = await (0, comment_service_1.findCommentsByUserId)(userId, pagination);
         return res.status(200).json({
             status: 200,
             message: "User comments retrieved successfully",
-            data: comments
+            data: result.data,
+            pagination: result.pagination
         });
     }
     catch (error) {

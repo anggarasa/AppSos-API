@@ -1,20 +1,5 @@
-export declare const findPostAll: () => import("../../generated/prisma").Prisma.PrismaPromise<{
-    id: string;
-    createdAt: Date;
-    authorId: string;
-    content: string;
-    imageUrl: string | null;
-    author: {
-        id: string;
-        username: string;
-        avatarUrl: string | null;
-    };
-    _count: {
-        comments: number;
-        likes: number;
-        saves: number;
-    };
-}[]>;
+import { PaginationParams, PaginationResult } from "../utils/pagination";
+export declare const findPostAll: (pagination: PaginationParams) => Promise<PaginationResult<any>>;
 export declare const findPostById: (id: string) => import("../../generated/prisma").Prisma.Prisma__PostClient<{
     id: string;
     createdAt: Date;
@@ -76,44 +61,8 @@ export declare const updatePostById: (id: string, userId: string, data: {
         saves: number;
     };
 }>;
-export declare const findPostsByUserId: (userId: string) => import("../../generated/prisma").Prisma.PrismaPromise<{
-    id: string;
-    createdAt: Date;
-    authorId: string;
-    content: string;
-    imageUrl: string | null;
-    author: {
-        id: string;
-        username: string;
-        avatarUrl: string | null;
-    };
-    _count: {
-        comments: number;
-        likes: number;
-        saves: number;
-    };
-}[]>;
-export declare const findSavedPostsByUserId: (userId: string) => import("../../generated/prisma").Prisma.PrismaPromise<{
-    id: string;
-    createdAt: Date;
-    post: {
-        id: string;
-        createdAt: Date;
-        authorId: string;
-        content: string;
-        imageUrl: string | null;
-        author: {
-            id: string;
-            username: string;
-            avatarUrl: string | null;
-        };
-        _count: {
-            comments: number;
-            likes: number;
-            saves: number;
-        };
-    };
-}[]>;
+export declare const findPostsByUserId: (userId: string, pagination: PaginationParams) => Promise<PaginationResult<any>>;
+export declare const findSavedPostsByUserId: (userId: string, pagination: PaginationParams) => Promise<PaginationResult<any>>;
 export declare const deletePostById: (id: string) => Promise<{
     status: number;
     message: string;

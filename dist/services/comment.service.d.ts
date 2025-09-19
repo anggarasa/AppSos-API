@@ -1,3 +1,4 @@
+import { PaginationParams, PaginationResult } from "../utils/pagination";
 export declare const insertComment: (userId: string, postId: string, content: string) => Promise<{
     id: string;
     authorId: string;
@@ -8,42 +9,8 @@ export declare const insertComment: (userId: string, postId: string, content: st
         username: string;
     };
 }>;
-export declare const findCommentsByPostId: (postId: string) => import("../../generated/prisma").Prisma.PrismaPromise<{
-    id: string;
-    createdAt: Date;
-    updatedAt: Date;
-    authorId: string;
-    content: string;
-    postId: string;
-    author: {
-        id: string;
-        username: string;
-        avatarUrl: string | null;
-    };
-}[]>;
-export declare const findCommentsByUserId: (userId: string) => import("../../generated/prisma").Prisma.PrismaPromise<{
-    id: string;
-    createdAt: Date;
-    updatedAt: Date;
-    post: {
-        id: string;
-        content: string;
-        imageUrl: string | null;
-        author: {
-            id: string;
-            username: string;
-            avatarUrl: string | null;
-        };
-    };
-    authorId: string;
-    content: string;
-    postId: string;
-    author: {
-        id: string;
-        username: string;
-        avatarUrl: string | null;
-    };
-}[]>;
+export declare const findCommentsByPostId: (postId: string, pagination: PaginationParams) => Promise<PaginationResult<any>>;
+export declare const findCommentsByUserId: (userId: string, pagination: PaginationParams) => Promise<PaginationResult<any>>;
 export declare const updateCommentById: (id: string, userId: string, content: string) => Promise<{
     id: string;
     createdAt: Date;

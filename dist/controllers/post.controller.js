@@ -2,13 +2,16 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deletePost = exports.getSavedPostsByUser = exports.getPostsByUser = exports.updatePost = exports.createPost = exports.getPost = exports.getPosts = void 0;
 const post_service_1 = require("../services/post.service");
-const getPosts = async (_, res) => {
+const pagination_1 = require("../utils/pagination");
+const getPosts = async (req, res) => {
     try {
-        const posts = await (0, post_service_1.findPostAll)();
+        const pagination = (0, pagination_1.parsePaginationParams)(req.query);
+        const result = await (0, post_service_1.findPostAll)(pagination);
         return res.status(200).json({
             status: 200,
             message: "Success",
-            data: posts
+            data: result.data,
+            pagination: result.pagination
         });
     }
     catch (error) {
@@ -112,11 +115,13 @@ exports.updatePost = updatePost;
 const getPostsByUser = async (req, res) => {
     const userId = req.params.userId;
     try {
-        const posts = await (0, post_service_1.findPostsByUserId)(userId);
+        const pagination = (0, pagination_1.parsePaginationParams)(req.query);
+        const result = await (0, post_service_1.findPostsByUserId)(userId, pagination);
         return res.status(200).json({
             status: 200,
             message: "User posts retrieved successfully",
-            data: posts
+            data: result.data,
+            pagination: result.pagination
         });
     }
     catch (error) {
@@ -131,11 +136,13 @@ exports.getPostsByUser = getPostsByUser;
 const getSavedPostsByUser = async (req, res) => {
     const userId = req.params.userId;
     try {
-        const savedPosts = await (0, post_service_1.findSavedPostsByUserId)(userId);
+        const pagination = (0, pagination_1.parsePaginationParams)(req.query);
+        const result = await (0, post_service_1.findSavedPostsByUserId)(userId, pagination);
         return res.status(200).json({
             status: 200,
             message: "Saved posts retrieved successfully",
-            data: savedPosts
+            data: result.data,
+            pagination: result.pagination
         });
     }
     catch (error) {

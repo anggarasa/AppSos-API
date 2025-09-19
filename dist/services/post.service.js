@@ -7,29 +7,39 @@ exports.deletePostById = exports.findSavedPostsByUserId = exports.findPostsByUse
 const db_1 = __importDefault(require("../config/db"));
 const crypto_1 = require("crypto");
 const supabase_1 = require("../config/supabase");
-const findPostAll = () => db_1.default.post.findMany({
-    select: {
-        id: true,
-        authorId: true,
-        content: true,
-        imageUrl: true,
-        createdAt: true,
-        author: {
+const pagination_1 = require("../utils/pagination");
+const findPostAll = async (pagination) => {
+    const [posts, total] = await Promise.all([
+        db_1.default.post.findMany({
             select: {
                 id: true,
-                username: true,
-                avatarUrl: true,
+                authorId: true,
+                content: true,
+                imageUrl: true,
+                createdAt: true,
+                author: {
+                    select: {
+                        id: true,
+                        username: true,
+                        avatarUrl: true,
+                    },
+                },
+                _count: {
+                    select: {
+                        comments: true,
+                        likes: true,
+                        saves: true,
+                    },
+                },
             },
-        },
-        _count: {
-            select: {
-                comments: true,
-                likes: true,
-                saves: true,
-            },
-        },
-    },
-});
+            skip: pagination.offset,
+            take: pagination.limit,
+            orderBy: { createdAt: 'desc' },
+        }),
+        db_1.default.post.count(),
+    ]);
+    return (0, pagination_1.createPaginationResult)(posts, total, pagination.page, pagination.limit);
+};
 exports.findPostAll = findPostAll;
 const findPostById = (id) => db_1.default.post.findUnique({
     where: { id },
@@ -197,38 +207,10 @@ const updatePostById = async (id, userId, data) => {
     }
 };
 exports.updatePostById = updatePostById;
-const findPostsByUserId = (userId) => db_1.default.post.findMany({
-    where: { authorId: userId },
-    select: {
-        id: true,
-        authorId: true,
-        content: true,
-        imageUrl: true,
-        createdAt: true,
-        author: {
-            select: {
-                id: true,
-                username: true,
-                avatarUrl: true,
-            },
-        },
-        _count: {
-            select: {
-                comments: true,
-                likes: true,
-                saves: true,
-            },
-        },
-    },
-    orderBy: { createdAt: 'desc' },
-});
-exports.findPostsByUserId = findPostsByUserId;
-const findSavedPostsByUserId = (userId) => db_1.default.save.findMany({
-    where: { userId },
-    select: {
-        id: true,
-        createdAt: true,
-        post: {
+const findPostsByUserId = async (userId, pagination) => {
+    const [posts, total] = await Promise.all([
+        db_1.default.post.findMany({
+            where: { authorId: userId },
             select: {
                 id: true,
                 authorId: true,
@@ -250,10 +232,54 @@ const findSavedPostsByUserId = (userId) => db_1.default.save.findMany({
                     },
                 },
             },
-        },
-    },
-    orderBy: { createdAt: 'desc' },
-});
+            skip: pagination.offset,
+            take: pagination.limit,
+            orderBy: { createdAt: 'desc' },
+        }),
+        db_1.default.post.count({ where: { authorId: userId } }),
+    ]);
+    return (0, pagination_1.createPaginationResult)(posts, total, pagination.page, pagination.limit);
+};
+exports.findPostsByUserId = findPostsByUserId;
+const findSavedPostsByUserId = async (userId, pagination) => {
+    const [savedPosts, total] = await Promise.all([
+        db_1.default.save.findMany({
+            where: { userId },
+            select: {
+                id: true,
+                createdAt: true,
+                post: {
+                    select: {
+                        id: true,
+                        authorId: true,
+                        content: true,
+                        imageUrl: true,
+                        createdAt: true,
+                        author: {
+                            select: {
+                                id: true,
+                                username: true,
+                                avatarUrl: true,
+                            },
+                        },
+                        _count: {
+                            select: {
+                                comments: true,
+                                likes: true,
+                                saves: true,
+                            },
+                        },
+                    },
+                },
+            },
+            skip: pagination.offset,
+            take: pagination.limit,
+            orderBy: { createdAt: 'desc' },
+        }),
+        db_1.default.save.count({ where: { userId } }),
+    ]);
+    return (0, pagination_1.createPaginationResult)(savedPosts, total, pagination.page, pagination.limit);
+};
 exports.findSavedPostsByUserId = findSavedPostsByUserId;
 const deletePostById = async (id) => {
     try {
