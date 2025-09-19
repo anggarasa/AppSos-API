@@ -18,10 +18,17 @@ const findPostAll = () => db_1.default.post.findMany({
             select: {
                 id: true,
                 username: true,
-                avatarUrl: true
-            }
-        }
-    }
+                avatarUrl: true,
+            },
+        },
+        _count: {
+            select: {
+                comments: true,
+                likes: true,
+                saves: true,
+            },
+        },
+    },
 });
 exports.findPostAll = findPostAll;
 const findPostById = (id) => db_1.default.post.findUnique({
@@ -39,30 +46,49 @@ const findPostById = (id) => db_1.default.post.findUnique({
                 name: true,
                 username: true,
                 email: true,
-                avatarUrl: true
-            }
-        }
-    }
+                avatarUrl: true,
+            },
+        },
+        comments: {
+            select: {
+                id: true,
+                content: true,
+                author: {
+                    select: {
+                        id: true,
+                        username: true,
+                        avatarUrl: true,
+                    },
+                },
+            },
+        },
+        _count: {
+            select: {
+                comments: true,
+                likes: true,
+                saves: true,
+            },
+        },
+    },
 });
 exports.findPostById = findPostById;
 const insertPost = async (userId, data) => {
     try {
         const existingUser = await db_1.default.user.findUnique({
-            where: { id: userId }
+            where: { id: userId },
         });
         if (!existingUser) {
-            throw new Error('User not found');
+            throw new Error("User not found");
         }
         const createPayload = {
-            content: data.content
+            content: data.content,
         };
         if (data.imageFile) {
-            const bucket = 'post_images';
-            const fileExt = (data.imageFile.originalname.split('.').pop() || 'jpg').toLowerCase();
+            const bucket = "post_images";
+            const fileExt = (data.imageFile.originalname.split(".").pop() || "jpg").toLowerCase();
             const fileName = `${(0, crypto_1.randomUUID)()}.${fileExt}`;
             const filePath = `${userId}/${fileName}`;
-            const { data: uploadData, error: uploadError } = await supabase_1.supabase
-                .storage
+            const { data: uploadData, error: uploadError } = await supabase_1.supabase.storage
                 .from(bucket)
                 .upload(filePath, data.imageFile.buffer, {
                 contentType: data.imageFile.mimetype,
@@ -71,8 +97,7 @@ const insertPost = async (userId, data) => {
             if (uploadError) {
                 throw new Error(`Failed to upload image: ${uploadError.message}`);
             }
-            const { data: publicUrlData } = supabase_1.supabase
-                .storage
+            const { data: publicUrlData } = supabase_1.supabase.storage
                 .from(bucket)
                 .getPublicUrl(filePath);
             createPayload.imageUrl = publicUrlData.publicUrl;
@@ -81,8 +106,8 @@ const insertPost = async (userId, data) => {
             data: {
                 authorId: userId,
                 content: createPayload.content,
-                imageUrl: createPayload.imageUrl
-            }
+                imageUrl: createPayload.imageUrl,
+            },
         });
         return createPost;
     }
@@ -95,7 +120,7 @@ const deletePostById = async (id) => {
     try {
         const existingPost = await db_1.default.post.findUnique({ where: { id } });
         if (!existingPost) {
-            throw new Error('Post not found');
+            throw new Error("Post not found");
         }
         if (existingPost.imageUrl) {
             try {
@@ -103,19 +128,19 @@ const deletePostById = async (id) => {
                 const idx = existingPost.imageUrl.indexOf(publicUrlPrefix);
                 if (idx !== -1) {
                     const previousPath = existingPost.imageUrl.substring(idx + publicUrlPrefix.length);
-                    await supabase_1.supabase.storage.from('post_images').remove([previousPath]);
+                    await supabase_1.supabase.storage.from("post_images").remove([previousPath]);
                 }
             }
             catch (error) {
-                console.error('Failed to delete image from storage:', error);
+                console.error("Failed to delete image from storage:", error);
             }
         }
         await db_1.default.post.delete({
-            where: { id }
+            where: { id },
         });
         return {
             status: 200,
-            message: 'Post deleted successfully'
+            message: "Post deleted successfully",
         };
     }
     catch (error) {

@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { registerUser, loginUser } from "../services/auth.service";
+import { registerUser, loginUser, refreshAccessToken } from "../services/auth.service";
 
 // Register user
 export const register = async (req: Request, res: Response) => {
@@ -60,6 +60,39 @@ export const login = async (req: Request, res: Response) => {
     }
   }
 }
+
+// Refresh access token
+export const refresh = async (req: Request, res: Response) => {
+  const { refreshToken } = req.body;
+
+  try {
+    if (!refreshToken) {
+      return res.status(400).json({
+        status: 400,
+        message: "Refresh token is required"
+      });
+    }
+
+    const result = await refreshAccessToken(refreshToken);
+    return res.status(200).json({
+      status: 200,
+      message: "Token refreshed successfully",
+      data: result,
+    });
+  } catch (error: any) {
+    if (error.message === 'Invalid refresh token' || error.message === 'User not found') {
+      return res.status(401).json({ 
+        status: 401,
+        message: error.message
+      });
+    } else {
+      return res.status(500).json({
+        status: 500,
+        message: "Internal server error",
+      });
+    }
+  }
+};
 
 // Logout user
 export const logout = async (req: Request, res: Response) => {

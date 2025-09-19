@@ -6,6 +6,7 @@ const validation_1 = require("../middleware/validation");
 const router = (0, express_1.Router)();
 router.post('/register', validation_1.validateCreateUser, auth_controller_1.register);
 router.post('/login', validation_1.validateLogin, auth_controller_1.login);
+router.post('/refresh', auth_controller_1.refresh);
 router.post('/logout', auth_controller_1.logout);
 exports.default = router;
 //# sourceMappingURL=auth.route.js.map

@@ -1,6 +1,6 @@
 import prisma from "../config/db";
 import bcrypt from "bcryptjs";
-import jwt from 'jsonwebtoken';
+import { generateTokenPair, verifyRefreshToken } from "../utils/tokenUtils";
 
 // Register new user
 export const registerUser = async (
@@ -30,18 +30,12 @@ export const registerUser = async (
       }
     });
 
-    // generate token
-    const token = jwt.sign(
-      {
-        userId: newUser.id,
-        username: newUser.username,
-      },
-      process.env.JWT_SECRET || 'your_jwt_secret',
-      { expiresIn: '24h' }
-    );
+    // generate tokens
+    const { accessToken, refreshToken } = generateTokenPair(newUser.id, newUser.username);
 
     return {
-      token,
+      accessToken,
+      refreshToken,
       user: {
         id: newUser.id,
         name: newUser.name,
@@ -83,18 +77,12 @@ export const loginUser = async (
       throw new Error('Invalid credentials');
     }
 
-    // Generate token
-    const token = jwt.sign(
-      {
-        userId: user.id,
-        username: user.username,
-      },
-      process.env.JWT_SECRET || 'your_jwt_secret',
-      { expiresIn: '24h' }
-    );
+    // Generate tokens
+    const { accessToken, refreshToken } = generateTokenPair(user.id, user.username);
 
     return {
-      token,
+      accessToken,
+      refreshToken,
       user: {
         id: user.id,
         name: user.name,
@@ -104,6 +92,53 @@ export const loginUser = async (
         avatarUrl: user.avatarUrl,
       },
     }
+
+  } catch (error) {
+    throw error;
+  }
+}
+
+// Refresh access token
+export const refreshAccessToken = async (refreshToken: string) => {
+  try {
+    // Verify refresh token
+    const decoded = verifyRefreshToken(refreshToken);
+    
+    if (!decoded) {
+      throw new Error('Invalid refresh token');
+    }
+
+    // Get user from database to ensure user still exists
+    const user = await prisma.user.findUnique({
+      where: { id: decoded.userId },
+      select: {
+        id: true,
+        username: true,
+        email: true,
+        name: true,
+        bio: true,
+        avatarUrl: true
+      }
+    });
+
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    // Generate new access token
+    const { accessToken } = generateTokenPair(user.id, user.username);
+
+    return {
+      accessToken,
+      user: {
+        id: user.id,
+        name: user.name,
+        username: user.username,
+        email: user.email,
+        bio: user.bio,
+        avatarUrl: user.avatarUrl,
+      },
+    };
 
   } catch (error) {
     throw error;

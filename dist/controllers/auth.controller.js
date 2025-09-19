@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.logout = exports.login = exports.register = void 0;
+exports.logout = exports.refresh = exports.login = exports.register = void 0;
 const auth_service_1 = require("../services/auth.service");
 const register = async (req, res) => {
     const { name, username, email, password } = req.body;
@@ -54,6 +54,38 @@ const login = async (req, res) => {
     }
 };
 exports.login = login;
+const refresh = async (req, res) => {
+    const { refreshToken } = req.body;
+    try {
+        if (!refreshToken) {
+            return res.status(400).json({
+                status: 400,
+                message: "Refresh token is required"
+            });
+        }
+        const result = await (0, auth_service_1.refreshAccessToken)(refreshToken);
+        return res.status(200).json({
+            status: 200,
+            message: "Token refreshed successfully",
+            data: result,
+        });
+    }
+    catch (error) {
+        if (error.message === 'Invalid refresh token' || error.message === 'User not found') {
+            return res.status(401).json({
+                status: 401,
+                message: error.message
+            });
+        }
+        else {
+            return res.status(500).json({
+                status: 500,
+                message: "Internal server error",
+            });
+        }
+    }
+};
+exports.refresh = refresh;
 const logout = async (req, res) => {
     return res.status(200).json({
         status: 200,

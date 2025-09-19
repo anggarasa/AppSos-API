@@ -4,7 +4,8 @@ export declare const registerUser: (data: {
     email: string;
     password: string;
 }) => Promise<{
-    token: string;
+    accessToken: string;
+    refreshToken: string;
     user: {
         id: string;
         name: string;
@@ -16,7 +17,19 @@ export declare const loginUser: (data: {
     username: string;
     password: string;
 }) => Promise<{
-    token: string;
+    accessToken: string;
+    refreshToken: string;
+    user: {
+        id: string;
+        name: string;
+        username: string;
+        email: string;
+        bio: string | null;
+        avatarUrl: string | null;
+    };
+}>;
+export declare const refreshAccessToken: (refreshToken: string) => Promise<{
+    accessToken: string;
     user: {
         id: string;
         name: string;

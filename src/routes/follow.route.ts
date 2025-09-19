@@ -7,14 +7,15 @@ import {
     getFollowStatistics 
 } from "../controllers/follow.controller";
 import { validateFollowUser, validateUnfollowUser } from "../middleware/validation";
+import { authenticateToken } from "../middleware/auth";
 
 const route: Router = Router();
 
-// Follow a user
-route.post('/', validateFollowUser, follow);
+// Follow a user - requires authentication
+route.post('/', authenticateToken, validateFollowUser, follow);
 
-// Unfollow a user
-route.delete('/unfollow', validateUnfollowUser, unfollow);
+// Unfollow a user - requires authentication
+route.delete('/unfollow', authenticateToken, validateUnfollowUser, unfollow);
 
 // Get followers list for a user
 route.get('/followers/:userId', getFollowersList);

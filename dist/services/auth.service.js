@@ -3,10 +3,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.loginUser = exports.registerUser = void 0;
+exports.refreshAccessToken = exports.loginUser = exports.registerUser = void 0;
 const db_1 = __importDefault(require("../config/db"));
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
-const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const tokenUtils_1 = require("../utils/tokenUtils");
 const registerUser = async (data) => {
     try {
         const existingUsername = await db_1.default.user.findUnique({ where: { username: data.username } });
@@ -23,12 +23,10 @@ const registerUser = async (data) => {
                 password: passwordHash,
             }
         });
-        const token = jsonwebtoken_1.default.sign({
-            userId: newUser.id,
-            username: newUser.username,
-        }, process.env.JWT_SECRET || 'your_jwt_secret', { expiresIn: '24h' });
+        const { accessToken, refreshToken } = (0, tokenUtils_1.generateTokenPair)(newUser.id, newUser.username);
         return {
-            token,
+            accessToken,
+            refreshToken,
             user: {
                 id: newUser.id,
                 name: newUser.name,
@@ -59,12 +57,10 @@ const loginUser = async (data) => {
         if (!isPasswordValid) {
             throw new Error('Invalid credentials');
         }
-        const token = jsonwebtoken_1.default.sign({
-            userId: user.id,
-            username: user.username,
-        }, process.env.JWT_SECRET || 'your_jwt_secret', { expiresIn: '24h' });
+        const { accessToken, refreshToken } = (0, tokenUtils_1.generateTokenPair)(user.id, user.username);
         return {
-            token,
+            accessToken,
+            refreshToken,
             user: {
                 id: user.id,
                 name: user.name,
@@ -80,4 +76,42 @@ const loginUser = async (data) => {
     }
 };
 exports.loginUser = loginUser;
+const refreshAccessToken = async (refreshToken) => {
+    try {
+        const decoded = (0, tokenUtils_1.verifyRefreshToken)(refreshToken);
+        if (!decoded) {
+            throw new Error('Invalid refresh token');
+        }
+        const user = await db_1.default.user.findUnique({
+            where: { id: decoded.userId },
+            select: {
+                id: true,
+                username: true,
+                email: true,
+                name: true,
+                bio: true,
+                avatarUrl: true
+            }
+        });
+        if (!user) {
+            throw new Error('User not found');
+        }
+        const { accessToken } = (0, tokenUtils_1.generateTokenPair)(user.id, user.username);
+        return {
+            accessToken,
+            user: {
+                id: user.id,
+                name: user.name,
+                username: user.username,
+                email: user.email,
+                bio: user.bio,
+                avatarUrl: user.avatarUrl,
+            },
+        };
+    }
+    catch (error) {
+        throw error;
+    }
+};
+exports.refreshAccessToken = refreshAccessToken;
 //# sourceMappingURL=auth.service.js.map

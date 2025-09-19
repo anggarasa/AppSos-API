@@ -9,6 +9,11 @@ export declare const findPostAll: () => import("../../generated/prisma").Prisma.
         username: string;
         avatarUrl: string | null;
     };
+    _count: {
+        comments: number;
+        likes: number;
+        saves: number;
+    };
 }[]>;
 export declare const findPostById: (id: string) => import("../../generated/prisma").Prisma.Prisma__PostClient<{
     id: string;
@@ -23,6 +28,20 @@ export declare const findPostById: (id: string) => import("../../generated/prism
         email: string;
         username: string;
         avatarUrl: string | null;
+    };
+    comments: {
+        id: string;
+        content: string;
+        author: {
+            id: string;
+            username: string;
+            avatarUrl: string | null;
+        };
+    }[];
+    _count: {
+        comments: number;
+        likes: number;
+        saves: number;
     };
 } | null, null, import("../../generated/prisma/runtime/library").DefaultArgs, import("../../generated/prisma").Prisma.PrismaClientOptions>;
 export declare const insertPost: (userId: string, data: {
