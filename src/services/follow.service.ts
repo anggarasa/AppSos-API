@@ -1,4 +1,5 @@
 import prisma from "../config/db";
+import notificationService from "./notification.service";
 
 export const followUser = async (followerId: string, followingId: string) => {
     try {
@@ -56,6 +57,14 @@ export const followUser = async (followerId: string, followingId: string) => {
                 }
             }
         });
+
+        // Create notification for the user being followed
+        try {
+            await notificationService.createFollowNotification(followerId, followingId);
+        } catch (notificationError) {
+            console.error('Error creating follow notification:', notificationError);
+            // Don't throw error here, just log it
+        }
 
         return follow;
     } catch (error) {

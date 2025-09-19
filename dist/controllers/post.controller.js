@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deletePost = exports.createPost = exports.getPost = exports.getPosts = void 0;
+exports.deletePost = exports.getSavedPostsByUser = exports.getPostsByUser = exports.updatePost = exports.createPost = exports.getPost = exports.getPosts = void 0;
 const post_service_1 = require("../services/post.service");
 const getPosts = async (_, res) => {
     try {
@@ -72,6 +72,81 @@ const createPost = async (req, res) => {
     }
 };
 exports.createPost = createPost;
+const updatePost = async (req, res) => {
+    const id = req.params.id;
+    const { userId, content } = req.body;
+    const imageFile = req.file;
+    try {
+        const result = await (0, post_service_1.updatePostById)(id, userId, { content, imageFile });
+        return res.status(200).json({
+            status: 200,
+            message: "Post updated successfully",
+            data: result
+        });
+    }
+    catch (error) {
+        if (error.message === 'Post not found') {
+            return res.status(404).json({
+                status: 404,
+                message: error.message,
+                data: {}
+            });
+        }
+        else if (error.message === 'Unauthorized to update this post') {
+            return res.status(403).json({
+                status: 403,
+                message: error.message,
+                data: {}
+            });
+        }
+        else {
+            return res.status(500).json({
+                status: 500,
+                message: "Internal server error",
+                data: {}
+            });
+        }
+    }
+};
+exports.updatePost = updatePost;
+const getPostsByUser = async (req, res) => {
+    const userId = req.params.userId;
+    try {
+        const posts = await (0, post_service_1.findPostsByUserId)(userId);
+        return res.status(200).json({
+            status: 200,
+            message: "User posts retrieved successfully",
+            data: posts
+        });
+    }
+    catch (error) {
+        return res.status(500).json({
+            status: 500,
+            message: "Internal server error",
+            data: []
+        });
+    }
+};
+exports.getPostsByUser = getPostsByUser;
+const getSavedPostsByUser = async (req, res) => {
+    const userId = req.params.userId;
+    try {
+        const savedPosts = await (0, post_service_1.findSavedPostsByUserId)(userId);
+        return res.status(200).json({
+            status: 200,
+            message: "Saved posts retrieved successfully",
+            data: savedPosts
+        });
+    }
+    catch (error) {
+        return res.status(500).json({
+            status: 500,
+            message: "Internal server error",
+            data: []
+        });
+    }
+};
+exports.getSavedPostsByUser = getSavedPostsByUser;
 const deletePost = async (req, res) => {
     const id = req.params.id;
     try {

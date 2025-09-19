@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.checkUserLike = exports.getPostLikeCount = exports.unlikePost = exports.deleteLike = exports.createLike = void 0;
+exports.getLike = exports.getLikesByUser = exports.getLikedPostsByUser = exports.checkUserLike = exports.getPostLikeCount = exports.unlikePost = exports.deleteLike = exports.createLike = void 0;
 const like_service_1 = require("../services/like.service");
 const createLike = async (req, res) => {
     const { userId, postId } = req.body;
@@ -128,4 +128,67 @@ const checkUserLike = async (req, res) => {
     }
 };
 exports.checkUserLike = checkUserLike;
+const getLikedPostsByUser = async (req, res) => {
+    const userId = req.params.userId;
+    try {
+        const likedPosts = await (0, like_service_1.findLikedPostsByUserId)(userId);
+        return res.status(200).json({
+            status: 200,
+            message: "Liked posts retrieved successfully",
+            data: likedPosts
+        });
+    }
+    catch (error) {
+        return res.status(500).json({
+            status: 500,
+            message: "Internal server error",
+            data: []
+        });
+    }
+};
+exports.getLikedPostsByUser = getLikedPostsByUser;
+const getLikesByUser = async (req, res) => {
+    const userId = req.params.userId;
+    try {
+        const likes = await (0, like_service_1.findLikesByUserId)(userId);
+        return res.status(200).json({
+            status: 200,
+            message: "User likes retrieved successfully",
+            data: likes
+        });
+    }
+    catch (error) {
+        return res.status(500).json({
+            status: 500,
+            message: "Internal server error",
+            data: []
+        });
+    }
+};
+exports.getLikesByUser = getLikesByUser;
+const getLike = async (req, res) => {
+    const id = req.params.id;
+    try {
+        const like = await (0, like_service_1.findLikeById)(id);
+        if (!like) {
+            return res.status(404).json({
+                status: 404,
+                message: "Like not found"
+            });
+        }
+        return res.status(200).json({
+            status: 200,
+            message: "Like retrieved successfully",
+            data: like
+        });
+    }
+    catch (error) {
+        return res.status(500).json({
+            status: 500,
+            message: "Internal server error",
+            data: {}
+        });
+    }
+};
+exports.getLike = getLike;
 //# sourceMappingURL=like.controller.js.map

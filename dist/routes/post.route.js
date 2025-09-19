@@ -8,7 +8,10 @@ const auth_1 = require("../middleware/auth");
 const route = (0, express_1.Router)();
 route.get('/', post_controller_1.getPosts);
 route.get('/:id', post_controller_1.getPost);
+route.get('/user/:userId', post_controller_1.getPostsByUser);
+route.get('/saved/:userId', auth_1.authenticateToken, post_controller_1.getSavedPostsByUser);
 route.post('/', auth_1.authenticateToken, upload_1.upload.single('image'), validation_1.validateCreatePost, post_controller_1.createPost);
+route.put('/:id', auth_1.authenticateToken, upload_1.upload.single('image'), validation_1.validateUpdatePost, post_controller_1.updatePost);
 route.delete('/:id', auth_1.authenticateToken, post_controller_1.deletePost);
 exports.default = route;
 //# sourceMappingURL=post.route.js.map

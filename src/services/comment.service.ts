@@ -1,4 +1,5 @@
 import prisma from "../config/db";
+import notificationService from "./notification.service";
 
 // create comment
 export const insertComment = async (
@@ -36,6 +37,14 @@ export const insertComment = async (
                 },
             }
         });
+
+        // Create notification for the post author
+        try {
+            await notificationService.createCommentNotification(createComment.id, userId);
+        } catch (notificationError) {
+            console.error('Error creating comment notification:', notificationError);
+            // Don't throw error here, just log it
+        }
 
         return createComment;
     } catch (error) {

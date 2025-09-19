@@ -10,5 +10,9 @@ route.delete('/unfollow', auth_1.authenticateToken, validation_1.validateUnfollo
 route.get('/followers/:userId', follow_controller_1.getFollowersList);
 route.get('/following/:userId', follow_controller_1.getFollowingList);
 route.get('/stats/:userId', follow_controller_1.getFollowStatistics);
+route.get('/check/:followerId/:followingId', follow_controller_1.checkFollowStatus);
+route.get('/mutual/:userId1/:userId2', follow_controller_1.getMutualFollowsList);
+route.get('/suggestions/:userId', follow_controller_1.getFollowSuggestionsList);
+route.get('/:id', follow_controller_1.getFollow);
 exports.default = route;
 //# sourceMappingURL=follow.route.js.map

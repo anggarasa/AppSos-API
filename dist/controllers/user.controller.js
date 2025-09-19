@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteUser = exports.updateUser = exports.findUser = exports.getUsers = void 0;
+exports.deleteUser = exports.getUserActivityFeed = exports.searchUsersList = exports.getUserByUsername = exports.getUserProfileWithStats = exports.updateUser = exports.findUser = exports.getUsers = void 0;
 const user_service_1 = require("../services/user.service");
 const getUsers = async (_, res) => {
     try {
@@ -95,6 +95,102 @@ const updateUser = async (req, res) => {
     }
 };
 exports.updateUser = updateUser;
+const getUserProfileWithStats = async (req, res) => {
+    const id = req.params.id;
+    try {
+        const user = await (0, user_service_1.findUserProfileWithStats)(id);
+        if (!user) {
+            return res.status(404).json({
+                status: 404,
+                message: "User not found"
+            });
+        }
+        return res.status(200).json({
+            status: 200,
+            message: "User profile retrieved successfully",
+            data: user
+        });
+    }
+    catch (error) {
+        return res.status(500).json({
+            status: 500,
+            message: "Internal server error",
+            data: {}
+        });
+    }
+};
+exports.getUserProfileWithStats = getUserProfileWithStats;
+const getUserByUsername = async (req, res) => {
+    const username = req.params.username;
+    try {
+        const user = await (0, user_service_1.findUserByUsername)(username);
+        if (!user) {
+            return res.status(404).json({
+                status: 404,
+                message: "User not found"
+            });
+        }
+        return res.status(200).json({
+            status: 200,
+            message: "User retrieved successfully",
+            data: user
+        });
+    }
+    catch (error) {
+        return res.status(500).json({
+            status: 500,
+            message: "Internal server error",
+            data: {}
+        });
+    }
+};
+exports.getUserByUsername = getUserByUsername;
+const searchUsersList = async (req, res) => {
+    const query = req.query.q;
+    const limit = parseInt(req.query.limit) || 10;
+    if (!query) {
+        return res.status(400).json({
+            status: 400,
+            message: "Search query is required"
+        });
+    }
+    try {
+        const users = await (0, user_service_1.searchUsers)(query, limit);
+        return res.status(200).json({
+            status: 200,
+            message: "Users found successfully",
+            data: users
+        });
+    }
+    catch (error) {
+        return res.status(500).json({
+            status: 500,
+            message: "Internal server error",
+            data: []
+        });
+    }
+};
+exports.searchUsersList = searchUsersList;
+const getUserActivityFeed = async (req, res) => {
+    const userId = req.params.userId;
+    const limit = parseInt(req.query.limit) || 20;
+    try {
+        const activity = await (0, user_service_1.getUserActivity)(userId, limit);
+        return res.status(200).json({
+            status: 200,
+            message: "User activity retrieved successfully",
+            data: activity
+        });
+    }
+    catch (error) {
+        return res.status(500).json({
+            status: 500,
+            message: "Internal server error",
+            data: {}
+        });
+    }
+};
+exports.getUserActivityFeed = getUserActivityFeed;
 const deleteUser = async (req, res) => {
     const id = req.params.id;
     try {

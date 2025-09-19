@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteUserById = exports.updateUserById = exports.findUserById = exports.findAllUsers = void 0;
+exports.deleteUserById = exports.getUserActivity = exports.getUserFollowingCount = exports.getUserFollowersCount = exports.getUserPostsCount = exports.searchUsers = exports.findUserByUsername = exports.findUserProfileWithStats = exports.updateUserById = exports.findUserById = exports.findAllUsers = void 0;
 const db_1 = __importDefault(require("../config/db"));
 const supabase_1 = require("../config/supabase");
 const crypto_1 = require("crypto");
@@ -119,6 +119,185 @@ const updateUserById = async (id, data) => {
     }
 };
 exports.updateUserById = updateUserById;
+const findUserProfileWithStats = (id) => db_1.default.user.findUnique({
+    where: { id },
+    select: {
+        id: true,
+        name: true,
+        username: true,
+        email: true,
+        bio: true,
+        avatarUrl: true,
+        createdAt: true,
+        updatedAt: true,
+        _count: {
+            select: {
+                posts: true,
+                followers: true,
+                following: true,
+                comments: true,
+                likes: true,
+                saves: true,
+            },
+        },
+    },
+});
+exports.findUserProfileWithStats = findUserProfileWithStats;
+const findUserByUsername = (username) => db_1.default.user.findUnique({
+    where: { username },
+    select: {
+        id: true,
+        name: true,
+        username: true,
+        email: true,
+        bio: true,
+        avatarUrl: true,
+        createdAt: true,
+        updatedAt: true,
+        _count: {
+            select: {
+                posts: true,
+                followers: true,
+                following: true,
+            },
+        },
+    },
+});
+exports.findUserByUsername = findUserByUsername;
+const searchUsers = (query, limit = 10) => db_1.default.user.findMany({
+    where: {
+        OR: [
+            { username: { contains: query, mode: 'insensitive' } },
+            { name: { contains: query, mode: 'insensitive' } },
+        ],
+    },
+    select: {
+        id: true,
+        name: true,
+        username: true,
+        avatarUrl: true,
+        bio: true,
+        _count: {
+            select: {
+                posts: true,
+                followers: true,
+                following: true,
+            },
+        },
+    },
+    take: limit,
+    orderBy: { createdAt: 'desc' },
+});
+exports.searchUsers = searchUsers;
+const getUserPostsCount = async (userId) => {
+    try {
+        const count = await db_1.default.post.count({
+            where: { authorId: userId },
+        });
+        return count;
+    }
+    catch (error) {
+        throw error;
+    }
+};
+exports.getUserPostsCount = getUserPostsCount;
+const getUserFollowersCount = async (userId) => {
+    try {
+        const count = await db_1.default.follow.count({
+            where: { followingId: userId },
+        });
+        return count;
+    }
+    catch (error) {
+        throw error;
+    }
+};
+exports.getUserFollowersCount = getUserFollowersCount;
+const getUserFollowingCount = async (userId) => {
+    try {
+        const count = await db_1.default.follow.count({
+            where: { followerId: userId },
+        });
+        return count;
+    }
+    catch (error) {
+        throw error;
+    }
+};
+exports.getUserFollowingCount = getUserFollowingCount;
+const getUserActivity = async (userId, limit = 20) => {
+    try {
+        const [recentPosts, recentComments, recentLikes] = await Promise.all([
+            db_1.default.post.findMany({
+                where: { authorId: userId },
+                select: {
+                    id: true,
+                    content: true,
+                    imageUrl: true,
+                    createdAt: true,
+                    _count: {
+                        select: {
+                            comments: true,
+                            likes: true,
+                            saves: true,
+                        },
+                    },
+                },
+                orderBy: { createdAt: 'desc' },
+                take: Math.ceil(limit / 3),
+            }),
+            db_1.default.comment.findMany({
+                where: { authorId: userId },
+                select: {
+                    id: true,
+                    content: true,
+                    createdAt: true,
+                    post: {
+                        select: {
+                            id: true,
+                            content: true,
+                            imageUrl: true,
+                        },
+                    },
+                },
+                orderBy: { createdAt: 'desc' },
+                take: Math.ceil(limit / 3),
+            }),
+            db_1.default.like.findMany({
+                where: { userId: userId },
+                select: {
+                    id: true,
+                    createdAt: true,
+                    post: {
+                        select: {
+                            id: true,
+                            content: true,
+                            imageUrl: true,
+                            author: {
+                                select: {
+                                    id: true,
+                                    username: true,
+                                    avatarUrl: true,
+                                },
+                            },
+                        },
+                    },
+                },
+                orderBy: { createdAt: 'desc' },
+                take: Math.ceil(limit / 3),
+            }),
+        ]);
+        return {
+            posts: recentPosts,
+            comments: recentComments,
+            likes: recentLikes,
+        };
+    }
+    catch (error) {
+        throw error;
+    }
+};
+exports.getUserActivity = getUserActivity;
 const deleteUserById = async (id) => {
     try {
         const existingUser = await db_1.default.user.findUnique({ where: { id } });

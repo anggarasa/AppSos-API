@@ -1,1 +1,1 @@
-{"version":3,"file":"post.route.d.ts","sourceRoot":"","sources":["../../src/routes/post.route.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,MAAM,EAAE,MAAM,SAAS,CAAC;AAMjC,QAAA,MAAM,KAAK,EAAE,MAAiB,CAAC;AAc/B,eAAe,KAAK,CAAC"}
+{"version":3,"file":"post.route.d.ts","sourceRoot":"","sources":["../../src/routes/post.route.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,MAAM,EAAE,MAAM,SAAS,CAAC;AAMjC,QAAA,MAAM,KAAK,EAAE,MAAiB,CAAC;AAuB/B,eAAe,KAAK,CAAC"}

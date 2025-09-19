@@ -4,4 +4,7 @@ export declare const deleteLike: (req: Request, res: Response) => Promise<Respon
 export declare const unlikePost: (req: Request, res: Response) => Promise<Response<any, Record<string, any>>>;
 export declare const getPostLikeCount: (req: Request, res: Response) => Promise<Response<any, Record<string, any>>>;
 export declare const checkUserLike: (req: Request, res: Response) => Promise<Response<any, Record<string, any>>>;
+export declare const getLikedPostsByUser: (req: Request, res: Response) => Promise<Response<any, Record<string, any>>>;
+export declare const getLikesByUser: (req: Request, res: Response) => Promise<Response<any, Record<string, any>>>;
+export declare const getLike: (req: Request, res: Response) => Promise<Response<any, Record<string, any>>>;
 //# sourceMappingURL=like.controller.d.ts.map

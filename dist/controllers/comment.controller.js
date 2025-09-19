@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteComment = exports.createComment = void 0;
+exports.deleteComment = exports.updateComment = exports.getComment = exports.getCommentsByUser = exports.getCommentsByPost = exports.createComment = void 0;
 const comment_service_1 = require("../services/comment.service");
 const createComment = async (req, res) => {
     const { userId, postId, content } = req.body;
@@ -37,6 +37,105 @@ const createComment = async (req, res) => {
     }
 };
 exports.createComment = createComment;
+const getCommentsByPost = async (req, res) => {
+    const postId = req.params.postId;
+    try {
+        const comments = await (0, comment_service_1.findCommentsByPostId)(postId);
+        return res.status(200).json({
+            status: 200,
+            message: "Comments retrieved successfully",
+            data: comments
+        });
+    }
+    catch (error) {
+        return res.status(500).json({
+            status: 500,
+            message: "Internal server error",
+            data: []
+        });
+    }
+};
+exports.getCommentsByPost = getCommentsByPost;
+const getCommentsByUser = async (req, res) => {
+    const userId = req.params.userId;
+    try {
+        const comments = await (0, comment_service_1.findCommentsByUserId)(userId);
+        return res.status(200).json({
+            status: 200,
+            message: "User comments retrieved successfully",
+            data: comments
+        });
+    }
+    catch (error) {
+        return res.status(500).json({
+            status: 500,
+            message: "Internal server error",
+            data: []
+        });
+    }
+};
+exports.getCommentsByUser = getCommentsByUser;
+const getComment = async (req, res) => {
+    const id = req.params.id;
+    try {
+        const comment = await (0, comment_service_1.findCommentById)(id);
+        if (!comment) {
+            return res.status(404).json({
+                status: 404,
+                message: "Comment not found"
+            });
+        }
+        return res.status(200).json({
+            status: 200,
+            message: "Comment retrieved successfully",
+            data: comment
+        });
+    }
+    catch (error) {
+        return res.status(500).json({
+            status: 500,
+            message: "Internal server error",
+            data: {}
+        });
+    }
+};
+exports.getComment = getComment;
+const updateComment = async (req, res) => {
+    const id = req.params.id;
+    const { userId, content } = req.body;
+    try {
+        const result = await (0, comment_service_1.updateCommentById)(id, userId, content);
+        return res.status(200).json({
+            status: 200,
+            message: "Comment updated successfully",
+            data: result
+        });
+    }
+    catch (error) {
+        if (error.message === 'Comment not found') {
+            return res.status(404).json({
+                status: 404,
+                message: error.message,
+                data: {}
+            });
+        }
+        else if (error.message === 'Unauthorized to update this comment') {
+            return res.status(403).json({
+                status: 403,
+                message: error.message,
+                data: {}
+            });
+        }
+        else {
+            return res.status(500).json({
+                status: 500,
+                message: "Internal server error",
+                data: {}
+            });
+        }
+    }
+};
+exports.updateComment = updateComment;
 const deleteComment = async (req, res) => {
     const id = req.params.id;
     try {

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.validateUnfollowUser = exports.validateFollowUser = exports.validateUnSavePost = exports.validateCreateSave = exports.validateUUIDs = exports.isValidUUID = exports.validateUnlikePost = exports.validateCreateLike = exports.validateCreateComment = exports.validateCreatePost = exports.validateLogin = exports.validateUpdateUser = exports.validateCreateUser = void 0;
+exports.validateUnfollowUser = exports.validateFollowUser = exports.validateUnSavePost = exports.validateCreateSave = exports.validateUUIDs = exports.isValidUUID = exports.validateUnlikePost = exports.validateCreateLike = exports.validateUpdateComment = exports.validateCreateComment = exports.validateUpdatePost = exports.validateCreatePost = exports.validateLogin = exports.validateUpdateUser = exports.validateCreateUser = void 0;
 const validateCreateUser = (req, res, next) => {
     const { name, username, email, password } = req.body;
     if (!name || !username || !email || !password) {
@@ -153,6 +153,45 @@ const validateCreatePost = (req, res, next) => {
     next();
 };
 exports.validateCreatePost = validateCreatePost;
+const validateUpdatePost = (req, res, next) => {
+    const { userId, content } = req.body;
+    const hasImageFile = Boolean(req.file);
+    if (!content && !hasImageFile) {
+        res.status(400).json({
+            status: 400,
+            message: "At least one field (content or image) must be provided for update"
+        });
+        return;
+    }
+    if (userId) {
+        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+        if (!uuidRegex.test(userId)) {
+            res.status(400).json({
+                status: 400,
+                message: "Invalid user ID format"
+            });
+            return;
+        }
+    }
+    if (content) {
+        if (content.trim().length < 1) {
+            res.status(400).json({
+                status: 400,
+                message: "Content cannot be empty"
+            });
+            return;
+        }
+        if (content.length > 2000) {
+            res.status(400).json({
+                status: 400,
+                message: "Content must be less than 2000 characters"
+            });
+            return;
+        }
+    }
+    next();
+};
+exports.validateUpdatePost = validateUpdatePost;
 const validateCreateComment = (req, res, next) => {
     const { userId, postId, content } = req.body;
     if (!userId) {
@@ -208,6 +247,47 @@ const validateCreateComment = (req, res, next) => {
     next();
 };
 exports.validateCreateComment = validateCreateComment;
+const validateUpdateComment = (req, res, next) => {
+    const { userId, content } = req.body;
+    if (!userId) {
+        res.status(400).json({
+            status: 400,
+            message: "User ID is required"
+        });
+        return;
+    }
+    if (!content) {
+        res.status(400).json({
+            status: 400,
+            message: "Content is required"
+        });
+        return;
+    }
+    if (content.trim().length < 1) {
+        res.status(400).json({
+            status: 400,
+            message: "Content cannot be empty"
+        });
+        return;
+    }
+    if (content.length > 2000) {
+        res.status(400).json({
+            status: 400,
+            message: "Content must be less than 2000 characters"
+        });
+        return;
+    }
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(userId)) {
+        res.status(400).json({
+            status: 400,
+            message: "Invalid user ID format"
+        });
+        return;
+    }
+    next();
+};
+exports.validateUpdateComment = validateUpdateComment;
 const validateCreateLike = (req, res, next) => {
     const { userId, postId } = req.body;
     if (!userId || !postId) {

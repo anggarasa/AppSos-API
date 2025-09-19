@@ -1,5 +1,6 @@
 // service file - FIXED VERSION
 import prisma from "../config/db"
+import notificationService from "./notification.service"
 
 export const insertLike = async (
     userId: string,
@@ -42,6 +43,14 @@ export const insertLike = async (
                 userId: userId
             }
         });
+
+        // Create notification for the post author
+        try {
+            await notificationService.createLikeNotification(postId, userId);
+        } catch (notificationError) {
+            console.error('Error creating like notification:', notificationError);
+            // Don't throw error here, just log it
+        }
 
         return createLike;
     } catch (error) {

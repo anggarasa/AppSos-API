@@ -3,8 +3,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getFollowStats = exports.getFollowing = exports.getFollowers = exports.unfollowUser = exports.followUser = void 0;
+exports.getFollowSuggestions = exports.findFollowById = exports.getMutualFollows = exports.isUserFollowing = exports.getFollowStats = exports.getFollowing = exports.getFollowers = exports.unfollowUser = exports.followUser = void 0;
 const db_1 = __importDefault(require("../config/db"));
+const notification_service_1 = __importDefault(require("./notification.service"));
 const followUser = async (followerId, followingId) => {
     try {
         const follower = await db_1.default.user.findUnique({ where: { id: followerId } });
@@ -51,6 +52,12 @@ const followUser = async (followerId, followingId) => {
                 }
             }
         });
+        try {
+            await notification_service_1.default.createFollowNotification(followerId, followingId);
+        }
+        catch (notificationError) {
+            console.error('Error creating follow notification:', notificationError);
+        }
         return follow;
     }
     catch (error) {
@@ -158,4 +165,119 @@ const getFollowStats = async (userId) => {
     }
 };
 exports.getFollowStats = getFollowStats;
+const isUserFollowing = async (followerId, followingId) => {
+    try {
+        const follow = await db_1.default.follow.findFirst({
+            where: {
+                followerId: followerId,
+                followingId: followingId
+            }
+        });
+        return !!follow;
+    }
+    catch (error) {
+        throw error;
+    }
+};
+exports.isUserFollowing = isUserFollowing;
+const getMutualFollows = async (userId1, userId2) => {
+    try {
+        const user1Following = await db_1.default.follow.findMany({
+            where: { followerId: userId1 },
+            select: { followingId: true }
+        });
+        const user2Following = await db_1.default.follow.findMany({
+            where: { followerId: userId2 },
+            select: { followingId: true }
+        });
+        const user1FollowingIds = user1Following.map(f => f.followingId);
+        const user2FollowingIds = user2Following.map(f => f.followingId);
+        const mutualIds = user1FollowingIds.filter(id => user2FollowingIds.includes(id));
+        if (mutualIds.length === 0) {
+            return [];
+        }
+        const mutualUsers = await db_1.default.user.findMany({
+            where: { id: { in: mutualIds } },
+            select: {
+                id: true,
+                username: true,
+                name: true,
+                avatarUrl: true,
+                bio: true
+            }
+        });
+        return mutualUsers;
+    }
+    catch (error) {
+        throw error;
+    }
+};
+exports.getMutualFollows = getMutualFollows;
+const findFollowById = (id) => db_1.default.follow.findUnique({
+    where: { id },
+    select: {
+        id: true,
+        followerId: true,
+        followingId: true,
+        createdAt: true,
+        follower: {
+            select: {
+                id: true,
+                username: true,
+                name: true,
+                avatarUrl: true,
+            },
+        },
+        following: {
+            select: {
+                id: true,
+                username: true,
+                name: true,
+                avatarUrl: true,
+            },
+        },
+    },
+});
+exports.findFollowById = findFollowById;
+const getFollowSuggestions = async (userId, limit = 10) => {
+    try {
+        const user = await db_1.default.user.findUnique({ where: { id: userId } });
+        if (!user) {
+            throw new Error('User not found');
+        }
+        const following = await db_1.default.follow.findMany({
+            where: { followerId: userId },
+            select: { followingId: true }
+        });
+        const followingIds = following.map(f => f.followingId);
+        followingIds.push(userId);
+        const suggestions = await db_1.default.user.findMany({
+            where: {
+                id: { notIn: followingIds }
+            },
+            select: {
+                id: true,
+                username: true,
+                name: true,
+                avatarUrl: true,
+                bio: true,
+                _count: {
+                    select: {
+                        followers: true,
+                        following: true
+                    }
+                }
+            },
+            take: limit,
+            orderBy: {
+                createdAt: 'desc'
+            }
+        });
+        return suggestions;
+    }
+    catch (error) {
+        throw error;
+    }
+};
+exports.getFollowSuggestions = getFollowSuggestions;
 //# sourceMappingURL=follow.service.js.map
