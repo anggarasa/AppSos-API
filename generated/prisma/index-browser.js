@@ -164,6 +164,13 @@ exports.Prisma.SaveScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.FollowScalarFieldEnum = {
+  id: 'id',
+  followerId: 'followerId',
+  followingId: 'followingId',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -185,7 +192,8 @@ exports.Prisma.ModelName = {
   Post: 'Post',
   Comment: 'Comment',
   Like: 'Like',
-  Save: 'Save'
+  Save: 'Save',
+  Follow: 'Follow'
 };
 
 /**

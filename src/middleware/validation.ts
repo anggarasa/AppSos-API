@@ -197,7 +197,7 @@ export const validateCreateComment = (req: Request, res: Response, next: NextFun
   if (!postId) {
     res.status(400).json({
       status: 400,
-      message: "User ID is required"
+      message: "Post ID is required"
     });
     return;
   }
@@ -259,6 +259,7 @@ export const validateCreateLike = (req: Request, res: Response, next: NextFuncti
           message: "userId and postId are required",
           data: {}
       });
+      return;
   }
 
   // Check if they are valid strings (you might want to add UUID validation)
@@ -268,6 +269,7 @@ export const validateCreateLike = (req: Request, res: Response, next: NextFuncti
           message: "userId and postId must be valid strings",
           data: {}
       });
+      return;
   }
 
   // Check if they are not empty strings
@@ -277,6 +279,7 @@ export const validateCreateLike = (req: Request, res: Response, next: NextFuncti
           message: "userId and postId cannot be empty",
           data: {}
       });
+      return;
   }
 
   next();
@@ -293,6 +296,7 @@ export const validateUnlikePost = (req: Request, res: Response, next: NextFuncti
           message: "userId and postId are required",
           data: {}
       });
+      return;
   }
 
   if (typeof userId !== 'string' || typeof postId !== 'string') {
@@ -301,6 +305,7 @@ export const validateUnlikePost = (req: Request, res: Response, next: NextFuncti
           message: "userId and postId must be valid strings",
           data: {}
       });
+      return;
   }
 
   if (userId.trim() === '' || postId.trim() === '') {
@@ -309,6 +314,7 @@ export const validateUnlikePost = (req: Request, res: Response, next: NextFuncti
           message: "userId and postId cannot be empty",
           data: {}
       });
+      return;
   }
 
   next();
@@ -330,6 +336,7 @@ export const validateUUIDs = (req: Request, res: Response, next: NextFunction): 
           message: "Invalid userId format",
           data: {}
       });
+      return;
   }
 
   if (postId && !isValidUUID(postId)) {
@@ -338,12 +345,13 @@ export const validateUUIDs = (req: Request, res: Response, next: NextFunction): 
           message: "Invalid postId format",
           data: {}
       });
+      return;
   }
 
   next();
 };
 
-// validation middleware create like
+// validation middleware create save
 export const validateCreateSave = (req: Request, res: Response, next: NextFunction): void => {
   const { userId, postId } = req.body;
 
@@ -354,6 +362,7 @@ export const validateCreateSave = (req: Request, res: Response, next: NextFuncti
           message: "userId and postId are required",
           data: {}
       });
+      return;
   }
 
   // Check if they are valid strings (you might want to add UUID validation)
@@ -363,6 +372,7 @@ export const validateCreateSave = (req: Request, res: Response, next: NextFuncti
           message: "userId and postId must be valid strings",
           data: {}
       });
+      return;
   }
 
   // Check if they are not empty strings
@@ -372,12 +382,13 @@ export const validateCreateSave = (req: Request, res: Response, next: NextFuncti
           message: "userId and postId cannot be empty",
           data: {}
       });
+      return;
   }
 
   next();
 };
 
-// validation middleware unlike
+// validation middleware unsave
 export const validateUnSavePost = (req: Request, res: Response, next: NextFunction): void => {
   const { userId, postId } = req.body;
 
@@ -388,6 +399,7 @@ export const validateUnSavePost = (req: Request, res: Response, next: NextFuncti
           message: "userId and postId are required",
           data: {}
       });
+      return;
   }
 
   if (typeof userId !== 'string' || typeof postId !== 'string') {
@@ -396,6 +408,7 @@ export const validateUnSavePost = (req: Request, res: Response, next: NextFuncti
           message: "userId and postId must be valid strings",
           data: {}
       });
+      return;
   }
 
   if (userId.trim() === '' || postId.trim() === '') {
@@ -404,6 +417,118 @@ export const validateUnSavePost = (req: Request, res: Response, next: NextFuncti
           message: "userId and postId cannot be empty",
           data: {}
       });
+      return;
+  }
+
+  next();
+};
+
+// validation middleware for follow user
+export const validateFollowUser = (req: Request, res: Response, next: NextFunction): void => {
+  const { followerId, followingId } = req.body;
+
+  // Check if required fields are present
+  if (!followerId || !followingId) {
+      res.status(400).json({
+          status: 400,
+          message: "followerId and followingId are required",
+          data: {}
+      });
+      return;
+  }
+
+  // Check if they are valid strings
+  if (typeof followerId !== 'string' || typeof followingId !== 'string') {
+      res.status(400).json({
+          status: 400,
+          message: "followerId and followingId must be valid strings",
+          data: {}
+      });
+      return;
+  }
+
+  // Check if they are not empty strings
+  if (followerId.trim() === '' || followingId.trim() === '') {
+      res.status(400).json({
+          status: 400,
+          message: "followerId and followingId cannot be empty",
+          data: {}
+      });
+      return;
+  }
+
+  // Validate UUID format
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  if (!uuidRegex.test(followerId)) {
+      res.status(400).json({
+          status: 400,
+          message: "Invalid followerId format",
+          data: {}
+      });
+      return;
+  }
+
+  if (!uuidRegex.test(followingId)) {
+      res.status(400).json({
+          status: 400,
+          message: "Invalid followingId format",
+          data: {}
+      });
+      return;
+  }
+
+  next();
+};
+
+// validation middleware for unfollow user
+export const validateUnfollowUser = (req: Request, res: Response, next: NextFunction): void => {
+  const { followerId, followingId } = req.body;
+
+  // Same validation as followUser
+  if (!followerId || !followingId) {
+      res.status(400).json({
+          status: 400,
+          message: "followerId and followingId are required",
+          data: {}
+      });
+      return;
+  }
+
+  if (typeof followerId !== 'string' || typeof followingId !== 'string') {
+      res.status(400).json({
+          status: 400,
+          message: "followerId and followingId must be valid strings",
+          data: {}
+      });
+      return;
+  }
+
+  if (followerId.trim() === '' || followingId.trim() === '') {
+      res.status(400).json({
+          status: 400,
+          message: "followerId and followingId cannot be empty",
+          data: {}
+      });
+      return;
+  }
+
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  if (!uuidRegex.test(followerId)) {
+      res.status(400).json({
+          status: 400,
+          message: "Invalid followerId format",
+          data: {}
+      });
+      return;
+  }
+
+  if (!uuidRegex.test(followingId)) {
+      res.status(400).json({
+          status: 400,
+          message: "Invalid followingId format",
+          data: {}
+      });
+      return;
   }
 
   next();
