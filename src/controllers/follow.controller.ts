@@ -10,6 +10,7 @@ import {
     findFollowById,
     getFollowSuggestions
 } from "../services/follow.service";
+import { parsePaginationParams } from "../utils/pagination";
 
 export const follow = async (req: Request, res: Response) => {
     const { followerId, followingId } = req.body;
@@ -81,11 +82,13 @@ export const getFollowersList = async (req: Request, res: Response) => {
     const { userId } = req.params;
 
     try {
-        const followers = await getFollowers(userId);
+        const pagination = parsePaginationParams(req.query);
+        const result = await getFollowers(userId, pagination);
         return res.status(200).json({
             status: 200,
             message: "Followers retrieved successfully",
-            data: followers
+            data: result.data,
+            pagination: result.pagination
         });
     } catch (error: any) {
         if (error.message === 'User not found') {
@@ -108,11 +111,13 @@ export const getFollowingList = async (req: Request, res: Response) => {
     const { userId } = req.params;
 
     try {
-        const following = await getFollowing(userId);
+        const pagination = parsePaginationParams(req.query);
+        const result = await getFollowing(userId, pagination);
         return res.status(200).json({
             status: 200,
             message: "Following list retrieved successfully",
-            data: following
+            data: result.data,
+            pagination: result.pagination
         });
     } catch (error: any) {
         if (error.message === 'User not found') {
@@ -178,16 +183,18 @@ export const checkFollowStatus = async (req: Request, res: Response) => {
     }
 };
 
-// get mutual follows between two users
+// get mutual follows between two users with pagination
 export const getMutualFollowsList = async (req: Request, res: Response) => {
     const { userId1, userId2 } = req.params;
 
     try {
-        const mutualFollows = await getMutualFollows(userId1, userId2);
+        const pagination = parsePaginationParams(req.query);
+        const result = await getMutualFollows(userId1, userId2, pagination);
         return res.status(200).json({
             status: 200,
             message: "Mutual follows retrieved successfully",
-            data: mutualFollows
+            data: result.data,
+            pagination: result.pagination
         });
     } catch (error) {
         return res.status(500).json({
@@ -224,17 +231,18 @@ export const getFollow = async (req: Request, res: Response) => {
     }
 };
 
-// get follow suggestions
+// get follow suggestions with pagination
 export const getFollowSuggestionsList = async (req: Request, res: Response) => {
     const userId: string = req.params.userId;
-    const limit: number = parseInt(req.query.limit as string) || 10;
 
     try {
-        const suggestions = await getFollowSuggestions(userId, limit);
+        const pagination = parsePaginationParams(req.query);
+        const result = await getFollowSuggestions(userId, pagination);
         return res.status(200).json({
             status: 200,
             message: "Follow suggestions retrieved successfully",
-            data: suggestions
+            data: result.data,
+            pagination: result.pagination
         });
     } catch (error: any) {
         if (error.message === 'User not found') {

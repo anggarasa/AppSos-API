@@ -1,5 +1,6 @@
 import prisma from "../config/db";
 import notificationService from "./notification.service";
+import { PaginationParams, PaginationResult, createPaginationResult } from "../utils/pagination";
 
 // create comment
 export const insertComment = async (
@@ -52,63 +53,79 @@ export const insertComment = async (
     }
 }
 
-// get comments by post
-export const findCommentsByPostId = (postId: string) =>
-  prisma.comment.findMany({
-    where: { postId },
-    select: {
-      id: true,
-      authorId: true,
-      postId: true,
-      content: true,
-      createdAt: true,
-      updatedAt: true,
-      author: {
-        select: {
-          id: true,
-          username: true,
-          avatarUrl: true,
+// get comments by post with pagination
+export const findCommentsByPostId = async (postId: string, pagination: PaginationParams): Promise<PaginationResult<any>> => {
+  const [comments, total] = await Promise.all([
+    prisma.comment.findMany({
+      where: { postId },
+      select: {
+        id: true,
+        authorId: true,
+        postId: true,
+        content: true,
+        createdAt: true,
+        updatedAt: true,
+        author: {
+          select: {
+            id: true,
+            username: true,
+            avatarUrl: true,
+          },
         },
       },
-    },
-    orderBy: { createdAt: 'asc' },
-  });
+      skip: pagination.offset,
+      take: pagination.limit,
+      orderBy: { createdAt: 'asc' },
+    }),
+    prisma.comment.count({ where: { postId } }),
+  ]);
 
-// get comments by user
-export const findCommentsByUserId = (userId: string) =>
-  prisma.comment.findMany({
-    where: { authorId: userId },
-    select: {
-      id: true,
-      authorId: true,
-      postId: true,
-      content: true,
-      createdAt: true,
-      updatedAt: true,
-      author: {
-        select: {
-          id: true,
-          username: true,
-          avatarUrl: true,
+  return createPaginationResult(comments, total, pagination.page, pagination.limit);
+};
+
+// get comments by user with pagination
+export const findCommentsByUserId = async (userId: string, pagination: PaginationParams): Promise<PaginationResult<any>> => {
+  const [comments, total] = await Promise.all([
+    prisma.comment.findMany({
+      where: { authorId: userId },
+      select: {
+        id: true,
+        authorId: true,
+        postId: true,
+        content: true,
+        createdAt: true,
+        updatedAt: true,
+        author: {
+          select: {
+            id: true,
+            username: true,
+            avatarUrl: true,
+          },
         },
-      },
-      post: {
-        select: {
-          id: true,
-          content: true,
-          imageUrl: true,
-          author: {
-            select: {
-              id: true,
-              username: true,
-              avatarUrl: true,
+        post: {
+          select: {
+            id: true,
+            content: true,
+            imageUrl: true,
+            author: {
+              select: {
+                id: true,
+                username: true,
+                avatarUrl: true,
+              },
             },
           },
         },
       },
-    },
-    orderBy: { createdAt: 'desc' },
-  });
+      skip: pagination.offset,
+      take: pagination.limit,
+      orderBy: { createdAt: 'desc' },
+    }),
+    prisma.comment.count({ where: { authorId: userId } }),
+  ]);
+
+  return createPaginationResult(comments, total, pagination.page, pagination.limit);
+};
 
 // update comment
 export const updateCommentById = async (

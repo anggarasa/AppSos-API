@@ -1,14 +1,17 @@
 import { Request, Response } from "express";
 import { deletePostById, findPostAll, findPostById, insertPost, updatePostById, findPostsByUserId, findSavedPostsByUserId } from "../services/post.service";
+import { parsePaginationParams } from "../utils/pagination";
 
-// get posts
-export const getPosts = async (_: Request, res: Response) => {
+// get posts with pagination
+export const getPosts = async (req: Request, res: Response) => {
     try {
-        const posts = await findPostAll();
+        const pagination = parsePaginationParams(req.query);
+        const result = await findPostAll(pagination);
         return res.status(200).json({
             status: 200,
             message: "Success",
-            data: posts
+            data: result.data,
+            pagination: result.pagination
         });
     } catch (error) {
         return res.status(500).json({
@@ -110,16 +113,18 @@ export const updatePost = async (req: Request, res: Response) => {
     }
 }
 
-// get posts by user
+// get posts by user with pagination
 export const getPostsByUser = async (req: Request, res: Response) => {
     const userId: string = req.params.userId;
 
     try {
-        const posts = await findPostsByUserId(userId);
+        const pagination = parsePaginationParams(req.query);
+        const result = await findPostsByUserId(userId, pagination);
         return res.status(200).json({
             status: 200,
             message: "User posts retrieved successfully",
-            data: posts
+            data: result.data,
+            pagination: result.pagination
         });
     } catch (error) {
         return res.status(500).json({
@@ -130,16 +135,18 @@ export const getPostsByUser = async (req: Request, res: Response) => {
     }
 }
 
-// get saved posts by user
+// get saved posts by user with pagination
 export const getSavedPostsByUser = async (req: Request, res: Response) => {
     const userId: string = req.params.userId;
 
     try {
-        const savedPosts = await findSavedPostsByUserId(userId);
+        const pagination = parsePaginationParams(req.query);
+        const result = await findSavedPostsByUserId(userId, pagination);
         return res.status(200).json({
             status: 200,
             message: "Saved posts retrieved successfully",
-            data: savedPosts
+            data: result.data,
+            pagination: result.pagination
         });
     } catch (error) {
         return res.status(500).json({

@@ -59,11 +59,20 @@ Logout user.
 
 ## 2. User API (`/users`)
 
-### GET `/users`
-Get all users.
+### GET `/users?page=1&limit=20`
+Get all users with pagination.
 
-### GET `/users/search?q=query&limit=10`
-Search users by username or name.
+**Query Parameters:**
+- `page` (optional): Page number (default: 1)
+- `limit` (optional): Items per page (default: 20, max: 50)
+
+### GET `/users/search?q=query&page=1&limit=20`
+Search users by username or name with pagination.
+
+**Query Parameters:**
+- `q` (required): Search query
+- `page` (optional): Page number (default: 1)
+- `limit` (optional): Items per page (default: 20, max: 50)
 
 ### GET `/users/username/:username`
 Get user by username.
@@ -71,8 +80,12 @@ Get user by username.
 ### GET `/users/profile/:id`
 Get user profile with statistics (posts count, followers, following, etc.).
 
-### GET `/users/activity/:userId?limit=20`
-Get user activity feed (recent posts, comments, likes).
+### GET `/users/activity/:userId?page=1&limit=20`
+Get user activity feed (recent posts, comments, likes) with pagination.
+
+**Query Parameters:**
+- `page` (optional): Page number (default: 1)
+- `limit` (optional): Items per page (default: 20, max: 50)
 
 ### GET `/users/:id`
 Get user by ID.
@@ -96,16 +109,24 @@ Delete user.
 
 ## 3. Post API (`/posts`)
 
-### GET `/posts`
-Get all posts with author information and counts.
+### GET `/posts?page=1&limit=20`
+Get all posts with author information and counts with pagination.
+
+**Query Parameters:**
+- `page` (optional): Page number (default: 1)
+- `limit` (optional): Items per page (default: 20, max: 50)
 
 ### GET `/posts/:id`
 Get post by ID with comments and counts.
 
-### GET `/posts/user/:userId`
-Get posts by specific user.
+### GET `/posts/user/:userId?page=1&limit=20`
+Get posts by specific user with pagination.
 
-### GET `/posts/saved/:userId` 🔒
+**Query Parameters:**
+- `page` (optional): Page number (default: 1)
+- `limit` (optional): Items per page (default: 20, max: 50)
+
+### GET `/posts/saved/:userId?page=1&limit=20` 🔒
 Get saved posts by user.
 
 ### POST `/posts` 🔒
@@ -135,11 +156,19 @@ Delete post.
 
 ## 4. Comment API (`/comment`)
 
-### GET `/comment/post/:postId`
-Get comments for a specific post.
+### GET `/comment/post/:postId?page=1&limit=20`
+Get comments for a specific post with pagination.
 
-### GET `/comment/user/:userId`
-Get comments by specific user.
+**Query Parameters:**
+- `page` (optional): Page number (default: 1)
+- `limit` (optional): Items per page (default: 20, max: 50)
+
+### GET `/comment/user/:userId?page=1&limit=20`
+Get comments by specific user with pagination.
+
+**Query Parameters:**
+- `page` (optional): Page number (default: 1)
+- `limit` (optional): Items per page (default: 20, max: 50)
 
 ### GET `/comment/:id`
 Get comment by ID.
@@ -218,8 +247,12 @@ Delete like by ID.
 
 ## 6. Save API (`/save`)
 
-### GET `/save/user/:userId` 🔒
-Get saved posts by user.
+### GET `/save/user/:userId?page=1&limit=20` 🔒
+Get saved posts by user with pagination.
+
+**Query Parameters:**
+- `page` (optional): Page number (default: 1)
+- `limit` (optional): Items per page (default: 20, max: 50)
 
 ### GET `/save/check/:userId/:postId`
 Check if user has saved a post.
@@ -256,11 +289,19 @@ Unsave post.
 
 ## 7. Follow API (`/follow`)
 
-### GET `/follow/followers/:userId`
-Get followers list for a user.
+### GET `/follow/followers/:userId?page=1&limit=20`
+Get followers list for a user with pagination.
 
-### GET `/follow/following/:userId`
-Get following list for a user.
+**Query Parameters:**
+- `page` (optional): Page number (default: 1)
+- `limit` (optional): Items per page (default: 20, max: 50)
+
+### GET `/follow/following/:userId?page=1&limit=20`
+Get following list for a user with pagination.
+
+**Query Parameters:**
+- `page` (optional): Page number (default: 1)
+- `limit` (optional): Items per page (default: 20, max: 50)
 
 ### GET `/follow/stats/:userId`
 Get follow statistics (followers count, following count).
@@ -268,11 +309,19 @@ Get follow statistics (followers count, following count).
 ### GET `/follow/check/:followerId/:followingId`
 Check if user is following another user.
 
-### GET `/follow/mutual/:userId1/:userId2`
-Get mutual follows between two users.
+### GET `/follow/mutual/:userId1/:userId2?page=1&limit=20`
+Get mutual follows between two users with pagination.
 
-### GET `/follow/suggestions/:userId?limit=10`
-Get follow suggestions for a user.
+**Query Parameters:**
+- `page` (optional): Page number (default: 1)
+- `limit` (optional): Items per page (default: 20, max: 50)
+
+### GET `/follow/suggestions/:userId?page=1&limit=20`
+Get follow suggestions for a user with pagination.
+
+**Query Parameters:**
+- `page` (optional): Page number (default: 1)
+- `limit` (optional): Items per page (default: 20, max: 50)
 
 ### GET `/follow/:id`
 Get follow relationship by ID.
@@ -351,14 +400,34 @@ Endpoints that support file upload use `multipart/form-data` content type:
 ## Query Parameters
 
 ### Pagination
-Many list endpoints support pagination:
-- `limit`: Number of items per page (default: 10)
-- `offset`: Number of items to skip
+Many list endpoints support pagination optimized for mobile:
+- `page`: Page number (default: 1, minimum: 1)
+- `limit`: Items per page (default: 20, maximum: 50, minimum: 1)
+
+**Pagination Response Format:**
+```json
+{
+  "status": 200,
+  "message": "Success",
+  "data": [/* array of items */],
+  "pagination": {
+    "page": 1,
+    "limit": 20,
+    "total": 100,
+    "totalPages": 5,
+    "hasNext": true,
+    "hasPrev": false,
+    "nextPage": 2,
+    "prevPage": null
+  }
+}
+```
 
 ### Search
 Search endpoints support:
 - `q`: Search query
-- `limit`: Maximum results (default: 10)
+- `page`: Page number (default: 1)
+- `limit`: Items per page (default: 20, max: 50)
 
 ## Error Handling
 
@@ -395,5 +464,13 @@ All input data is validated using middleware before processing. Common validatio
 - File upload support for posts and avatars
 - Follow suggestions algorithm
 - Mutual follows detection
+- **Mobile-optimized pagination** for all list endpoints
 
-All APIs are now production-ready with proper validation, error handling, and comprehensive functionality for a complete social media application.
+### Mobile Pagination Features:
+- **Optimized for mobile performance**: Default 20 items per page, maximum 50
+- **Comprehensive pagination metadata**: Includes hasNext, hasPrev, nextPage, prevPage
+- **Efficient data loading**: Reduces initial load time and memory usage
+- **Consistent API response format**: All paginated endpoints follow the same structure
+- **Query parameter validation**: Automatic validation and defaults for page/limit parameters
+
+All APIs are now production-ready with proper validation, error handling, mobile-optimized pagination, and comprehensive functionality for a complete social media application.

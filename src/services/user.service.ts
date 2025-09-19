@@ -1,20 +1,31 @@
 import prisma from "../config/db";
 import { supabase } from "../config/supabase";
 import { randomUUID } from "crypto";
+import { PaginationParams, PaginationResult, createPaginationResult } from "../utils/pagination";
 
-// find all users
-export const findAllUsers = () => prisma.user.findMany({
-  select: {
-    id: true,
-    name: true,
-    username: true,
-    email: true,
-    bio: true,
-    avatarUrl: true,
-    createdAt: true,
-    updatedAt: true
-  }
-});
+// find all users with pagination
+export const findAllUsers = async (pagination: PaginationParams): Promise<PaginationResult<any>> => {
+  const [users, total] = await Promise.all([
+    prisma.user.findMany({
+      select: {
+        id: true,
+        name: true,
+        username: true,
+        email: true,
+        bio: true,
+        avatarUrl: true,
+        createdAt: true,
+        updatedAt: true
+      },
+      skip: pagination.offset,
+      take: pagination.limit,
+      orderBy: { createdAt: 'desc' },
+    }),
+    prisma.user.count(),
+  ]);
+
+  return createPaginationResult(users, total, pagination.page, pagination.limit);
+};
 
 // find user by username
 export const findUserById = (id: string) => prisma.user.findUnique({ 
@@ -198,32 +209,46 @@ export const findUserByUsername = (username: string) =>
     },
   });
 
-// search users by username or name
-export const searchUsers = (query: string, limit: number = 10) =>
-  prisma.user.findMany({
-    where: {
-      OR: [
-        { username: { contains: query, mode: 'insensitive' } },
-        { name: { contains: query, mode: 'insensitive' } },
-      ],
-    },
-    select: {
-      id: true,
-      name: true,
-      username: true,
-      avatarUrl: true,
-      bio: true,
-      _count: {
-        select: {
-          posts: true,
-          followers: true,
-          following: true,
+// search users by username or name with pagination
+export const searchUsers = async (query: string, pagination: PaginationParams): Promise<PaginationResult<any>> => {
+  const [users, total] = await Promise.all([
+    prisma.user.findMany({
+      where: {
+        OR: [
+          { username: { contains: query, mode: 'insensitive' } },
+          { name: { contains: query, mode: 'insensitive' } },
+        ],
+      },
+      select: {
+        id: true,
+        name: true,
+        username: true,
+        avatarUrl: true,
+        bio: true,
+        _count: {
+          select: {
+            posts: true,
+            followers: true,
+            following: true,
+          },
         },
       },
-    },
-    take: limit,
-    orderBy: { createdAt: 'desc' },
-  });
+      skip: pagination.offset,
+      take: pagination.limit,
+      orderBy: { createdAt: 'desc' },
+    }),
+    prisma.user.count({
+      where: {
+        OR: [
+          { username: { contains: query, mode: 'insensitive' } },
+          { name: { contains: query, mode: 'insensitive' } },
+        ],
+      },
+    }),
+  ]);
+
+  return createPaginationResult(users, total, pagination.page, pagination.limit);
+};
 
 // get user posts count
 export const getUserPostsCount = async (userId: string): Promise<number> => {
@@ -261,9 +286,11 @@ export const getUserFollowingCount = async (userId: string): Promise<number> => 
   }
 };
 
-// get user activity (recent posts, comments, likes)
-export const getUserActivity = async (userId: string, limit: number = 20) => {
+// get user activity (recent posts, comments, likes) with pagination
+export const getUserActivity = async (userId: string, pagination: PaginationParams) => {
   try {
+    const limitPerType = Math.ceil(pagination.limit / 3);
+    
     const [recentPosts, recentComments, recentLikes] = await Promise.all([
       prisma.post.findMany({
         where: { authorId: userId },
@@ -281,7 +308,7 @@ export const getUserActivity = async (userId: string, limit: number = 20) => {
           },
         },
         orderBy: { createdAt: 'desc' },
-        take: Math.ceil(limit / 3),
+        take: limitPerType,
       }),
       prisma.comment.findMany({
         where: { authorId: userId },
@@ -298,7 +325,7 @@ export const getUserActivity = async (userId: string, limit: number = 20) => {
           },
         },
         orderBy: { createdAt: 'desc' },
-        take: Math.ceil(limit / 3),
+        take: limitPerType,
       }),
       prisma.like.findMany({
         where: { userId: userId },
@@ -321,15 +348,27 @@ export const getUserActivity = async (userId: string, limit: number = 20) => {
           },
         },
         orderBy: { createdAt: 'desc' },
-        take: Math.ceil(limit / 3),
+        take: limitPerType,
       }),
     ]);
 
-    return {
-      posts: recentPosts,
-      comments: recentComments,
-      likes: recentLikes,
-    };
+    // Combine all activities and sort by creation date
+    const allActivities = [
+      ...recentPosts.map(post => ({ ...post, type: 'post' })),
+      ...recentComments.map(comment => ({ ...comment, type: 'comment' })),
+      ...recentLikes.map(like => ({ ...like, type: 'like' })),
+    ].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+    // Get total count for pagination
+    const [postsCount, commentsCount, likesCount] = await Promise.all([
+      prisma.post.count({ where: { authorId: userId } }),
+      prisma.comment.count({ where: { authorId: userId } }),
+      prisma.like.count({ where: { userId } }),
+    ]);
+
+    const totalActivities = postsCount + commentsCount + likesCount;
+
+    return createPaginationResult(allActivities, totalActivities, pagination.page, pagination.limit);
   } catch (error) {
     throw error;
   }

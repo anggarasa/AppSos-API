@@ -1,5 +1,6 @@
 import { Request, Response } from "express"
 import { deleteCommentById, insertComment, findCommentsByPostId, findCommentsByUserId, updateCommentById, findCommentById } from "../services/comment.service";
+import { parsePaginationParams } from "../utils/pagination";
 
 // create comment
 export const createComment = async (req: Request, res: Response) => {
@@ -35,16 +36,18 @@ export const createComment = async (req: Request, res: Response) => {
     }
 }
 
-// get comments by post
+// get comments by post with pagination
 export const getCommentsByPost = async (req: Request, res: Response) => {
     const postId: string = req.params.postId;
 
     try {
-        const comments = await findCommentsByPostId(postId);
+        const pagination = parsePaginationParams(req.query);
+        const result = await findCommentsByPostId(postId, pagination);
         return res.status(200).json({
             status: 200,
             message: "Comments retrieved successfully",
-            data: comments
+            data: result.data,
+            pagination: result.pagination
         });
     } catch (error) {
         return res.status(500).json({
@@ -55,16 +58,18 @@ export const getCommentsByPost = async (req: Request, res: Response) => {
     }
 }
 
-// get comments by user
+// get comments by user with pagination
 export const getCommentsByUser = async (req: Request, res: Response) => {
     const userId: string = req.params.userId;
 
     try {
-        const comments = await findCommentsByUserId(userId);
+        const pagination = parsePaginationParams(req.query);
+        const result = await findCommentsByUserId(userId, pagination);
         return res.status(200).json({
             status: 200,
             message: "User comments retrieved successfully",
-            data: comments
+            data: result.data,
+            pagination: result.pagination
         });
     } catch (error) {
         return res.status(500).json({

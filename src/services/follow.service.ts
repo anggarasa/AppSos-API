@@ -1,5 +1,6 @@
 import prisma from "../config/db";
 import notificationService from "./notification.service";
+import { PaginationParams, PaginationResult, createPaginationResult } from "../utils/pagination";
 
 export const followUser = async (followerId: string, followingId: string) => {
     try {
@@ -100,7 +101,7 @@ export const unfollowUser = async (followerId: string, followingId: string) => {
     }
 };
 
-export const getFollowers = async (userId: string) => {
+export const getFollowers = async (userId: string, pagination: PaginationParams): Promise<PaginationResult<any>> => {
     try {
         const user = await prisma.user.findUnique({ where: { id: userId } });
         
@@ -108,29 +109,35 @@ export const getFollowers = async (userId: string) => {
             throw new Error('User not found');
         }
 
-        const followers = await prisma.follow.findMany({
-            where: { followingId: userId },
-            include: {
-                follower: {
-                    select: {
-                        id: true,
-                        username: true,
-                        name: true,
-                        avatarUrl: true,
-                        bio: true
+        const [followers, total] = await Promise.all([
+            prisma.follow.findMany({
+                where: { followingId: userId },
+                include: {
+                    follower: {
+                        select: {
+                            id: true,
+                            username: true,
+                            name: true,
+                            avatarUrl: true,
+                            bio: true
+                        }
                     }
-                }
-            },
-            orderBy: { createdAt: 'desc' }
-        });
+                },
+                skip: pagination.offset,
+                take: pagination.limit,
+                orderBy: { createdAt: 'desc' }
+            }),
+            prisma.follow.count({ where: { followingId: userId } })
+        ]);
 
-        return followers.map(follow => follow.follower);
+        const followersData = followers.map(follow => follow.follower);
+        return createPaginationResult(followersData, total, pagination.page, pagination.limit);
     } catch (error) {
         throw error;
     }
 };
 
-export const getFollowing = async (userId: string) => {
+export const getFollowing = async (userId: string, pagination: PaginationParams): Promise<PaginationResult<any>> => {
     try {
         const user = await prisma.user.findUnique({ where: { id: userId } });
         
@@ -138,23 +145,29 @@ export const getFollowing = async (userId: string) => {
             throw new Error('User not found');
         }
 
-        const following = await prisma.follow.findMany({
-            where: { followerId: userId },
-            include: {
-                following: {
-                    select: {
-                        id: true,
-                        username: true,
-                        name: true,
-                        avatarUrl: true,
-                        bio: true
+        const [following, total] = await Promise.all([
+            prisma.follow.findMany({
+                where: { followerId: userId },
+                include: {
+                    following: {
+                        select: {
+                            id: true,
+                            username: true,
+                            name: true,
+                            avatarUrl: true,
+                            bio: true
+                        }
                     }
-                }
-            },
-            orderBy: { createdAt: 'desc' }
-        });
+                },
+                skip: pagination.offset,
+                take: pagination.limit,
+                orderBy: { createdAt: 'desc' }
+            }),
+            prisma.follow.count({ where: { followerId: userId } })
+        ]);
 
-        return following.map(follow => follow.following);
+        const followingData = following.map(follow => follow.following);
+        return createPaginationResult(followingData, total, pagination.page, pagination.limit);
     } catch (error) {
         throw error;
     }
@@ -197,8 +210,8 @@ export const isUserFollowing = async (followerId: string, followingId: string): 
     }
 };
 
-// get mutual follows between two users
-export const getMutualFollows = async (userId1: string, userId2: string) => {
+// get mutual follows between two users with pagination
+export const getMutualFollows = async (userId1: string, userId2: string, pagination: PaginationParams): Promise<PaginationResult<any>> => {
     try {
         // Get users that both userId1 and userId2 are following
         const user1Following = await prisma.follow.findMany({
@@ -217,21 +230,27 @@ export const getMutualFollows = async (userId1: string, userId2: string) => {
         const mutualIds = user1FollowingIds.filter(id => user2FollowingIds.includes(id));
 
         if (mutualIds.length === 0) {
-            return [];
+            return createPaginationResult([], 0, pagination.page, pagination.limit);
         }
 
-        const mutualUsers = await prisma.user.findMany({
-            where: { id: { in: mutualIds } },
-            select: {
-                id: true,
-                username: true,
-                name: true,
-                avatarUrl: true,
-                bio: true
-            }
-        });
+        const [mutualUsers, total] = await Promise.all([
+            prisma.user.findMany({
+                where: { id: { in: mutualIds } },
+                select: {
+                    id: true,
+                    username: true,
+                    name: true,
+                    avatarUrl: true,
+                    bio: true
+                },
+                skip: pagination.offset,
+                take: pagination.limit,
+                orderBy: { createdAt: 'desc' }
+            }),
+            prisma.user.count({ where: { id: { in: mutualIds } } })
+        ]);
 
-        return mutualUsers;
+        return createPaginationResult(mutualUsers, total, pagination.page, pagination.limit);
     } catch (error) {
         throw error;
     }
@@ -265,8 +284,8 @@ export const findFollowById = (id: string) =>
     },
   });
 
-// get follow suggestions (users not followed by the user)
-export const getFollowSuggestions = async (userId: string, limit: number = 10) => {
+// get follow suggestions (users not followed by the user) with pagination
+export const getFollowSuggestions = async (userId: string, pagination: PaginationParams): Promise<PaginationResult<any>> => {
     try {
         const user = await prisma.user.findUnique({ where: { id: userId } });
         
@@ -283,31 +302,38 @@ export const getFollowSuggestions = async (userId: string, limit: number = 10) =
         const followingIds = following.map(f => f.followingId);
         followingIds.push(userId); // Exclude self
 
-        // Get random users that the current user is not following
-        const suggestions = await prisma.user.findMany({
-            where: {
-                id: { notIn: followingIds }
-            },
-            select: {
-                id: true,
-                username: true,
-                name: true,
-                avatarUrl: true,
-                bio: true,
-                _count: {
-                    select: {
-                        followers: true,
-                        following: true
+        const [suggestions, total] = await Promise.all([
+            prisma.user.findMany({
+                where: {
+                    id: { notIn: followingIds }
+                },
+                select: {
+                    id: true,
+                    username: true,
+                    name: true,
+                    avatarUrl: true,
+                    bio: true,
+                    _count: {
+                        select: {
+                            followers: true,
+                            following: true
+                        }
                     }
+                },
+                skip: pagination.offset,
+                take: pagination.limit,
+                orderBy: {
+                    createdAt: 'desc'
                 }
-            },
-            take: limit,
-            orderBy: {
-                createdAt: 'desc'
-            }
-        });
+            }),
+            prisma.user.count({
+                where: {
+                    id: { notIn: followingIds }
+                }
+            })
+        ]);
 
-        return suggestions;
+        return createPaginationResult(suggestions, total, pagination.page, pagination.limit);
     } catch (error) {
         throw error;
     }

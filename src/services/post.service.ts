@@ -1,32 +1,42 @@
 import prisma from "../config/db";
 import { randomUUID } from "crypto";
 import { supabase } from "../config/supabase";
+import { PaginationParams, PaginationResult, createPaginationResult } from "../utils/pagination";
 
-// find all posts
-export const findPostAll = () =>
-  prisma.post.findMany({
-    select: {
-      id: true,
-      authorId: true,
-      content: true,
-      imageUrl: true,
-      createdAt: true,
-      author: {
-        select: {
-          id: true,
-          username: true,
-          avatarUrl: true,
+// find all posts with pagination
+export const findPostAll = async (pagination: PaginationParams): Promise<PaginationResult<any>> => {
+  const [posts, total] = await Promise.all([
+    prisma.post.findMany({
+      select: {
+        id: true,
+        authorId: true,
+        content: true,
+        imageUrl: true,
+        createdAt: true,
+        author: {
+          select: {
+            id: true,
+            username: true,
+            avatarUrl: true,
+          },
+        },
+        _count: {
+          select: {
+            comments: true,
+            likes: true,
+            saves: true,
+          },
         },
       },
-      _count: {
-        select: {
-          comments: true,
-          likes: true,
-          saves: true,
-        },
-      },
-    },
-  });
+      skip: pagination.offset,
+      take: pagination.limit,
+      orderBy: { createdAt: 'desc' },
+    }),
+    prisma.post.count(),
+  ]);
+
+  return createPaginationResult(posts, total, pagination.page, pagination.limit);
+};
 
 // find post by id
 export const findPostById = (id: string) =>
@@ -241,67 +251,83 @@ export const updatePostById = async (
   }
 };
 
-// get posts by user
-export const findPostsByUserId = (userId: string) =>
-  prisma.post.findMany({
-    where: { authorId: userId },
-    select: {
-      id: true,
-      authorId: true,
-      content: true,
-      imageUrl: true,
-      createdAt: true,
-      author: {
-        select: {
-          id: true,
-          username: true,
-          avatarUrl: true,
+// get posts by user with pagination
+export const findPostsByUserId = async (userId: string, pagination: PaginationParams): Promise<PaginationResult<any>> => {
+  const [posts, total] = await Promise.all([
+    prisma.post.findMany({
+      where: { authorId: userId },
+      select: {
+        id: true,
+        authorId: true,
+        content: true,
+        imageUrl: true,
+        createdAt: true,
+        author: {
+          select: {
+            id: true,
+            username: true,
+            avatarUrl: true,
+          },
+        },
+        _count: {
+          select: {
+            comments: true,
+            likes: true,
+            saves: true,
+          },
         },
       },
-      _count: {
-        select: {
-          comments: true,
-          likes: true,
-          saves: true,
-        },
-      },
-    },
-    orderBy: { createdAt: 'desc' },
-  });
+      skip: pagination.offset,
+      take: pagination.limit,
+      orderBy: { createdAt: 'desc' },
+    }),
+    prisma.post.count({ where: { authorId: userId } }),
+  ]);
 
-// get saved posts by user
-export const findSavedPostsByUserId = (userId: string) =>
-  prisma.save.findMany({
-    where: { userId },
-    select: {
-      id: true,
-      createdAt: true,
-      post: {
-        select: {
-          id: true,
-          authorId: true,
-          content: true,
-          imageUrl: true,
-          createdAt: true,
-          author: {
-            select: {
-              id: true,
-              username: true,
-              avatarUrl: true,
+  return createPaginationResult(posts, total, pagination.page, pagination.limit);
+};
+
+// get saved posts by user with pagination
+export const findSavedPostsByUserId = async (userId: string, pagination: PaginationParams): Promise<PaginationResult<any>> => {
+  const [savedPosts, total] = await Promise.all([
+    prisma.save.findMany({
+      where: { userId },
+      select: {
+        id: true,
+        createdAt: true,
+        post: {
+          select: {
+            id: true,
+            authorId: true,
+            content: true,
+            imageUrl: true,
+            createdAt: true,
+            author: {
+              select: {
+                id: true,
+                username: true,
+                avatarUrl: true,
+              },
             },
-          },
-          _count: {
-            select: {
-              comments: true,
-              likes: true,
-              saves: true,
+            _count: {
+              select: {
+                comments: true,
+                likes: true,
+                saves: true,
+              },
             },
           },
         },
       },
-    },
-    orderBy: { createdAt: 'desc' },
-  });
+      skip: pagination.offset,
+      take: pagination.limit,
+      orderBy: { createdAt: 'desc' },
+    }),
+    prisma.save.count({ where: { userId } }),
+  ]);
+
+  return createPaginationResult(savedPosts, total, pagination.page, pagination.limit);
+};
 
 // delete post
 export const deletePostById = async (id: string) => {
